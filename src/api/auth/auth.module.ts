@@ -10,7 +10,7 @@ import { Users } from '../users/entities/user.entity';
 import { DeviceTokens } from '../device-tokens/entities/device-tokens.entity';
 import { RefreshTokensModule } from '../refresh-tokens/refresh-tokens.module';
 import { APP_GUARD } from '@nestjs/core';
-import { ApiKeyGuard } from 'src/common/passport/api-key.guard';
+// import { ApiKeyGuard } from 'src/common/passport/api-key.guard';
 
 @Module({
   imports: [
@@ -24,10 +24,10 @@ import { ApiKeyGuard } from 'src/common/passport/api-key.guard';
   providers: [
     AuthService,
     JwtStrategy,
-    {
-      provide: APP_GUARD,
-      useClass: ApiKeyGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ApiKeyGuard,
+    // },
   ],
 })
 export class AuthModule {}

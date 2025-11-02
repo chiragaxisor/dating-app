@@ -52,11 +52,11 @@ export class UsersService {
    * @param phone
    * @returns
    */
-  async findByPhone(phone: string): Promise<Users> {
-    return await this.userRepository.findOne({
-      where: { phone: phone, isBlocked: false },
-    });
-  }
+  // async findByPhone(phone: string): Promise<Users> {
+  //   return await this.userRepository.findOne({
+  //     where: { phone: phone, isBlocked: false },
+  //   });
+  // }
 
   /**
    * Find user by email
@@ -78,7 +78,7 @@ export class UsersService {
     return await this.userRepository.findOne({
       where: {
         email: email,
-        isSocialLoggedIn: false,
+        // isSocialLoggedIn: false,
         isBlocked: false,
       },
     });

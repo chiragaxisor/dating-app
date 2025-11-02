@@ -37,13 +37,13 @@ import { RegisterDto } from './dto/register.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyResetPasswordOtpDto } from './dto/verify-reset-password-otp.dto';
-import { SocialLoginDto } from './dto/social-login.dto';
+// import { SocialLoginDto } from './dto/social-login.dto';
 import { LogoutDto } from './dto/logout.dto';
 
 @ApiTags('Auth')
 @Controller('api/v1')
 @UsePipes(ValidationPipe)
-@ApiSecurity('api_key', ['Api-Key'])
+// @ApiSecurity('api_key', ['Api-Key'])
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -60,7 +60,8 @@ export class AuthController {
   @ApiResponse(USER_REGISTRATION_RESPONSE)
   @ApiResponse(USER_EXISTS_RESPONSE)
   async register(@Body() registerDto: RegisterDto) {
-    const user: Users = await this.authService.register(registerDto);
+
+    const user = await this.authService.register(registerDto);
 
     return {
       statusCode: HttpStatus.CREATED,
@@ -85,6 +86,7 @@ export class AuthController {
   @ApiResponse(USER_LOGIN_RESPONSE)
   @ApiResponse(INVALID_USER_RESPONSE)
   async login(@Body() loginDto: LoginDto) {
+
     const user = await this.authService.login(loginDto);
 
     return {
@@ -101,28 +103,28 @@ export class AuthController {
    * Social login
    * @returns
    */
-  @Post('social-login')
-  @ApiOperation({
-    summary: 'Social login',
-    description: `    providerType = google, apple
-    pass idToken for google/apple login => idToken
-    pass email if mail is hidden in apple login`,
-  })
-  @HttpCode(HttpStatus.CREATED)
-  @ApiResponse(USER_LOGIN_RESPONSE)
-  @ApiResponse(UNAUTHORIZE_RESPONSE)
-  async socialLogin(@Body() socialLoginDto: SocialLoginDto) {
-    const user = await this.authService.socialLogin(socialLoginDto);
+  // @Post('social-login')
+  // @ApiOperation({
+  //   summary: 'Social login',
+  //   description: `    providerType = google, apple
+  //   pass idToken for google/apple login => idToken
+  //   pass email if mail is hidden in apple login`,
+  // })
+  // @HttpCode(HttpStatus.CREATED)
+  // @ApiResponse(USER_LOGIN_RESPONSE)
+  // @ApiResponse(UNAUTHORIZE_RESPONSE)
+  // async socialLogin(@Body() socialLoginDto: SocialLoginDto) {
+  //   const user = await this.authService.socialLogin(socialLoginDto);
 
-    return {
-      statusCode: HttpStatus.CREATED,
-      message: 'You are successfully logged in',
-      data: plainToInstance(Users, user, {
-        enableImplicitConversion: true,
-        excludeExtraneousValues: true,
-      }),
-    };
-  }
+  //   return {
+  //     statusCode: HttpStatus.CREATED,
+  //     message: 'You are successfully logged in',
+  //     data: plainToInstance(Users, user, {
+  //       enableImplicitConversion: true,
+  //       excludeExtraneousValues: true,
+  //     }),
+  //   };
+  // }
 
   /**
    * Forgot password
@@ -207,3 +209,4 @@ export class AuthController {
     };
   }
 }
+

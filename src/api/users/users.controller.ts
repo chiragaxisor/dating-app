@@ -115,68 +115,68 @@ export class UsersController {
    * @param changePasswordDto
    * @returns
    */
-  @Post('change-password')
-  @ApiOperation({
-    summary: 'Change password',
-  })
-  @HttpCode(HttpStatus.OK)
-  @ApiResponse(CHANGE_PASSWORD_RESPONSE)
-  @ApiResponse(BAD_REQUEST_RESPONSE)
-  async changePassword(
-    @AuthUser() authUser: Users,
-    @Body() changePasswordDto: ChangePasswordDto,
-  ) {
-    await this.usersService.changePassword(changePasswordDto, authUser);
+  // @Post('change-password')
+  // @ApiOperation({
+  //   summary: 'Change password',
+  // })
+  // @HttpCode(HttpStatus.OK)
+  // @ApiResponse(CHANGE_PASSWORD_RESPONSE)
+  // @ApiResponse(BAD_REQUEST_RESPONSE)
+  // async changePassword(
+  //   @AuthUser() authUser: Users,
+  //   @Body() changePasswordDto: ChangePasswordDto,
+  // ) {
+  //   await this.usersService.changePassword(changePasswordDto, authUser);
 
-    return {
-      statusCode: HttpStatus.CREATED,
-      message: 'Password successfully changed',
-    };
-  }
+  //   return {
+  //     statusCode: HttpStatus.CREATED,
+  //     message: 'Password successfully changed',
+  //   };
+  // }
 
   /**
    * Delete user
    * @param authUser
    * @returns
    */
-  @Delete('')
-  @ApiOperation({
-    summary: 'Delete user',
-  })
-  @HttpCode(HttpStatus.OK)
-  @ApiResponse(USER_DELETE_PROFILE_RESPONSE)
-  @ApiResponse(UNAUTHORIZE_RESPONSE)
-  async deleteProfile(@AuthUser() authUser: Users) {
-    await this.usersService.deleteProfile(authUser);
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'Your profile has been successfully deleted',
-    };
-  }
+  // @Delete('')
+  // @ApiOperation({
+  //   summary: 'Delete user',
+  // })
+  // @HttpCode(HttpStatus.OK)
+  // @ApiResponse(USER_DELETE_PROFILE_RESPONSE)
+  // @ApiResponse(UNAUTHORIZE_RESPONSE)
+  // async deleteProfile(@AuthUser() authUser: Users) {
+  //   await this.usersService.deleteProfile(authUser);
+  //   return {
+  //     statusCode: HttpStatus.OK,
+  //     message: 'Your profile has been successfully deleted',
+  //   };
+  // }
 
   /** Toggle user notification
    * @param authUser
    * @returns
    */
-  @Get('toggle-notification')
-  @ApiOperation({
-    summary: 'Toggle notification',
-  })
-  @HttpCode(HttpStatus.OK)
-  @ApiResponse(GET_RESPONSE_SUCCESS)
-  @ApiResponse(BAD_REQUEST_RESPONSE)
-  async toggleNotification(@AuthUser() authUser: Users) {
-    const user: Users = await this.usersService.toggleNotification(authUser);
+  // @Get('toggle-notification')
+  // @ApiOperation({
+  //   summary: 'Toggle notification',
+  // })
+  // @HttpCode(HttpStatus.OK)
+  // @ApiResponse(GET_RESPONSE_SUCCESS)
+  // @ApiResponse(BAD_REQUEST_RESPONSE)
+  // async toggleNotification(@AuthUser() authUser: Users) {
+  //   const user: Users = await this.usersService.toggleNotification(authUser);
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: `Notification turned ${
-        authUser.isNotificationOn ? 'off' : 'on'
-      }!`,
-      data: plainToInstance(Users, user, {
-        enableImplicitConversion: true,
-        excludeExtraneousValues: true,
-      }),
-    };
-  }
+  //   return {
+  //     statusCode: HttpStatus.OK,
+  //     message: `Notification turned ${
+  //       authUser.isNotificationOn ? 'off' : 'on'
+  //     }!`,
+  //     data: plainToInstance(Users, user, {
+  //       enableImplicitConversion: true,
+  //       excludeExtraneousValues: true,
+  //     }),
+  //   };
+  // }
 }

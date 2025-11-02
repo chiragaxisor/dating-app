@@ -9,9 +9,9 @@ import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
-import { ApiKeyStrategy } from './common/passport/api-kay.strategy';
+// import { ApiKeyStrategy } from './common/passport/api-kay.strategy';
 import { APP_GUARD } from '@nestjs/core';
-import { ApiKeyGuard } from './common/passport/api-key.guard';
+// import { ApiKeyGuard } from './common/passport/api-key.guard';
 import { AdminModule } from './admin/admin.module';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ormconfig = require('../ormconfig.js');
@@ -50,20 +50,21 @@ const ormconfig = require('../ormconfig.js');
       }),
     }),
     ScheduleModule.forRoot(),
-    PassportModule.register({
-      defaultStrategy: 'api-key',
-    }),
+    // PassportModule.register({
+    //   defaultStrategy: 'api-key',
+    // }),
+    PassportModule,
     ApiModule,
     AdminModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    ApiKeyStrategy,
-    {
-      provide: APP_GUARD,
-      useClass: ApiKeyGuard,
-    },
+    // ApiKeyStrategy,
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ApiKeyGuard,
+    // },
   ],
 })
 export class AppModule {}

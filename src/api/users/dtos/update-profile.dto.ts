@@ -14,19 +14,19 @@ export class UpdateProfileDto {
   @IsOptional()
   profilePic: string;
 
-  @ApiProperty({
-    example: '+91',
-    required: false,
-  })
-  @IsOptional()
-  countryCode: string;
+  // @ApiProperty({
+  //   example: '+91',
+  //   required: false,
+  // })
+  // @IsOptional()
+  // countryCode: string;
 
-  @ApiProperty({
-    example: '8989897689',
-    required: false,
-  })
-  @IsOptional()
-  phone: string;
+  // @ApiProperty({
+  //   example: '8989897689',
+  //   required: false,
+  // })
+  // @IsOptional()
+  // phone: string;
 
   @ApiProperty({
     example: Gender.FEMALE,
@@ -36,12 +36,12 @@ export class UpdateProfileDto {
   @IsOptional()
   gender: Gender;
 
-  @ApiProperty({
-    example: 32,
-    required: false,
-  })
-  @IsOptional()
-  age: number;
+  // @ApiProperty({
+  //   example: 32,
+  //   required: false,
+  // })
+  // @IsOptional()
+  // age: number;
 
   @ApiProperty({
     example: '90 Bedford Street, Manhattan',
@@ -72,9 +72,44 @@ export class UpdateProfileDto {
   city: string;
 
   @ApiProperty({
-    example: 100149,
+    example: '2025-10-01',
     required: false,
   })
   @IsOptional()
-  postalCode: number;
+  dateOfBirth: Date;
+  
+  @ApiProperty({
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  imlooking: string;
+  
+  @ApiProperty({
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  relationship: string;
+  
+  @ApiProperty({
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  about: string;
+  
+  @ApiProperty({
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  interested: string;
+
+  // @ApiProperty({
+  //   example: 100149,
+  //   required: false,
+  // })
+  // @IsOptional()
+  // postalCode: number;
 }

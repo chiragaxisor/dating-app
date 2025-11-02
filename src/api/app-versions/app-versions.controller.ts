@@ -20,7 +20,7 @@ import { CheckAppVersionDto } from './dto/check-app-version.dto';
 @ApiTags('App Version')
 @Controller('api/v1')
 @UsePipes(ValidationPipe)
-@ApiSecurity('api_key', ['Api-Key'])
+// @ApiSecurity('api_key', ['Api-Key'])
 export class AppVersionsController {
   constructor(private readonly appVersionsService: AppVersionsService) {}
 

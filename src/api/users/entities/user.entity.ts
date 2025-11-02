@@ -47,13 +47,13 @@ export class Users {
   @Column({ nullable: true })
   password: string;
 
-  @Column({ nullable: true })
-  @Expose()
-  countryCode: string;
+  // @Column({ nullable: true })
+  // @Expose()
+  // countryCode: string;
 
-  @Column({ nullable: true })
-  @Expose()
-  phone: string;
+  // @Column({ nullable: true })
+  // @Expose()
+  // phone: string;
 
   @Column({ nullable: true, type: 'text' })
   @Expose()
@@ -71,13 +71,13 @@ export class Users {
   @Expose()
   state: string;
 
-  @Column({ nullable: true })
-  @Expose()
-  postalCode: string;
+  // @Column({ nullable: true })
+  // @Expose()
+  // postalCode: string;
 
-  @Column({ nullable: true })
-  @Expose()
-  age: number;
+  // @Column({ nullable: true })
+  // @Expose()
+  // age: number;
 
   @Expose()
   @Column({
@@ -99,15 +99,15 @@ export class Users {
   @Expose()
   isNotificationOn: boolean;
 
-  @Column({
-    default: null,
-  })
-  providerId: string;
+  // @Column({
+  //   default: null,
+  // })
+  // providerId: string;
 
-  @Column({
-    default: null,
-  })
-  providerType: string;
+  // @Column({
+  //   default: null,
+  // })
+  // providerType: string;
 
   @Column({
     default: null,
@@ -119,19 +119,19 @@ export class Users {
   })
   forgotPasswordCodeExpiredAt: Date;
 
-  @Column({
-    type: 'tinyint',
-    default: 0,
-  })
-  @Expose()
-  isSocialLoggedIn: boolean;
+  // @Column({
+  //   type: 'tinyint',
+  //   default: 0,
+  // })
+  // @Expose()
+  // isSocialLoggedIn: boolean;
 
-  @Expose()
-  @Column({
-    type: 'tinyint',
-    default: 1,
-  })
-  isFirstTimeUser: boolean;
+  // @Expose()
+  // @Column({
+  //   type: 'tinyint',
+  //   default: 1,
+  // })
+  // isFirstTimeUser: boolean;
 
   @Expose()
   @Column({
@@ -153,6 +153,28 @@ export class Users {
     nullable: true,
   })
   deletedAt!: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  @Expose()
+  @Transform(({ value }) => dateToTimestamp(value))
+  dateOfBirth: Date;
+  
+  @Column({ nullable: true, type: 'text' })
+  @Expose()
+  imlooking: string;
+  
+  @Column({ nullable: true, type: 'text' })
+  @Expose()
+  relationship: string;
+  
+  @Column({ nullable: true, type: 'text' })
+  @Expose()
+  about: string;
+  
+  @Column({ nullable: true, type: 'text' })
+  @Expose()
+  interested: string;
+
 
   @Expose()
   @Type(() => AuthTokenResource)

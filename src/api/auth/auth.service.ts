@@ -19,10 +19,10 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyResetPasswordOtpDto } from './dto/verify-reset-password-otp.dto';
-import { SocialLoginDto } from './dto/social-login.dto';
-import { ProviderTypes } from 'src/common/constants';
-import SocialiteGoogle from 'src/common/socialite/socialite-google';
-import { SocialiteApple } from 'src/common/socialite/socialite-apple';
+// import { SocialLoginDto } from './dto/social-login.dto';
+// import { ProviderTypes } from 'src/common/constants';
+// import SocialiteGoogle from 'src/common/socialite/socialite-google';
+// import { SocialiteApple } from 'src/common/socialite/socialite-apple';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DeviceTokens } from '../device-tokens/entities/device-tokens.entity';
@@ -59,7 +59,7 @@ export class AuthService {
       password: encodePassword(registerDto.password),
     });
 
-    const tokens = await this.generateTokens(user);
+    const tokens = await this.generateTokens(registeredUser);
 
     return {
       ...registeredUser,
@@ -76,7 +76,7 @@ export class AuthService {
     const user: Users = await this.userRepository.findOne({
       where: {
         email: loginDto.email,
-        isSocialLoggedIn: false,
+        // isSocialLoggedIn: false,
         isBlocked: false,
       },
     });
@@ -102,10 +102,13 @@ export class AuthService {
     const registeredUser = await this.usersService.createOrUpdate(
       {
         ...user,
-        isFirstTimeUser: false,
+        // isFirstTimeUser: false,
       },
       user.id,
     );
+
+    console.log(registeredUser);
+    
 
     const tokens = await this.generateTokens(registeredUser);
 
@@ -120,68 +123,68 @@ export class AuthService {
    * @param socialLoginDto
    * @returns
    */
-  async socialLogin(socialLoginDto: SocialLoginDto) {
-    let socialUser: any;
-    if (socialLoginDto.providerType === ProviderTypes.GOOGLE) {
-      socialUser = await new SocialiteGoogle().generateUserFromToken(
-        socialLoginDto.token,
-      );
-    }
+  // async socialLogin(socialLoginDto: SocialLoginDto) {
+  //   let socialUser: any;
+  //   if (socialLoginDto.providerType === ProviderTypes.GOOGLE) {
+  //     socialUser = await new SocialiteGoogle().generateUserFromToken(
+  //       socialLoginDto.token,
+  //     );
+  //   }
 
-    if (socialLoginDto.providerType === ProviderTypes.APPLE) {
-      socialUser = await new SocialiteApple(
-        this.userRepository,
-      ).generateUserFromToken(socialLoginDto.token);
-    }
+  //   if (socialLoginDto.providerType === ProviderTypes.APPLE) {
+  //     socialUser = await new SocialiteApple(
+  //       this.userRepository,
+  //     ).generateUserFromToken(socialLoginDto.token);
+  //   }
 
-    socialUser.email = socialUser.email
-      ? socialUser.email
-      : socialLoginDto.email;
-    socialUser.providerType = socialLoginDto.providerType;
+  //   socialUser.email = socialUser.email
+  //     ? socialUser.email
+  //     : socialLoginDto.email;
+  //   socialUser.providerType = socialLoginDto.providerType;
 
-    const user = await this.findByProviderTypeAndId(
-      socialUser.providerType,
-      socialUser.providerId ? socialUser.providerId : null,
-    );
+  //   const user = await this.findByProviderTypeAndId(
+  //     socialUser.providerType,
+  //     socialUser.providerId ? socialUser.providerId : null,
+  //   );
 
-    socialUser.isSocialLoggedIn = true;
+  //   socialUser.isSocialLoggedIn = true;
 
-    if (!user) {
-      const newUser = await this.usersService.createOrUpdate({
-        ...socialUser,
-        isFirstTimeUser: true,
-      });
-      const newTokens = await this.generateTokens(newUser);
+  //   if (!user) {
+  //     const newUser = await this.usersService.createOrUpdate({
+  //       ...socialUser,
+  //       isFirstTimeUser: true,
+  //     });
+  //     const newTokens = await this.generateTokens(newUser);
 
-      return { ...newUser, authentication: { ...newTokens } };
-    }
+  //     return { ...newUser, authentication: { ...newTokens } };
+  //   }
 
-    const tokens = await this.generateTokens(user);
+  //   const tokens = await this.generateTokens(user);
 
-    const newUser = await this.usersService.createOrUpdate(
-      {
-        ...user,
-        isFirstTimeUser: false,
-      },
-      user.id,
-    );
-    return { ...newUser, authentication: { ...tokens } };
-  }
+  //   const newUser = await this.usersService.createOrUpdate(
+  //     {
+  //       ...user,
+  //       isFirstTimeUser: false,
+  //     },
+  //     user.id,
+  //   );
+  //   return { ...newUser, authentication: { ...tokens } };
+  // }
 
   /**
    * Find user by provider Id and token
    * @param providerType
    * @param providerId
    */
-  async findByProviderTypeAndId(providerType: string, providerId: string) {
-    return await this.userRepository.findOne({
-      where: {
-        providerType,
-        providerId,
-        isBlocked: false,
-      },
-    });
-  }
+  // async findByProviderTypeAndId(providerType: string, providerId: string) {
+  //   return await this.userRepository.findOne({
+  //     where: {
+  //       providerType,
+  //       providerId,
+  //       isBlocked: false,
+  //     },
+  //   });
+  // }
 
   /**
    * Generate JWT tokens
@@ -215,11 +218,11 @@ export class AuthService {
       throw new BadRequestException('This email is not register with us!');
     }
 
-    if (user.isSocialLoggedIn) {
-      throw new BadRequestException(
-        `Provided email address is already associated with ${user.providerType}! Please try to login with ${user.providerType}`,
-      );
-    }
+    // if (user.isSocialLoggedIn) {
+    //   throw new BadRequestException(
+    //     `Provided email address is already associated with ${user.providerType}! Please try to login with ${user.providerType}`,
+    //   );
+    // }
 
     const forgotPasswordCode = Math.floor(100000 + Math.random() * 900000);
     const forgotPasswordCodeExpiredAt = moment()
@@ -227,22 +230,22 @@ export class AuthService {
       .format('YYYY-MM-DD HH:mm:ss');
 
     // Send mail
-    try {
-      await this.mailerService.sendMail({
-        to: user.email,
-        subject: `${this.configService.get('APP_NAME')} app! Forgot password`,
-        template: 'forgot-password',
-        context: {
-          user: user,
-          forgotPasswordCode: forgotPasswordCode,
-        },
-      });
-    } catch (err) {
-      console.log(err);
-      throw new BadRequestException(
-        'Error sending forgot password email. Please try again later',
-      );
-    }
+    // try {
+    //   await this.mailerService.sendMail({
+    //     to: user.email,
+    //     subject: `${this.configService.get('APP_NAME')} app! Forgot password`,
+    //     template: 'forgot-password',
+    //     context: {
+    //       user: user,
+    //       forgotPasswordCode: forgotPasswordCode,
+    //     },
+    //   });
+    // } catch (err) {
+    //   console.log(err);
+    //   throw new BadRequestException(
+    //     'Error sending forgot password email. Please try again later',
+    //   );
+    // }
 
     await this.usersService.createOrUpdate(
       { forgotPasswordCode, forgotPasswordCodeExpiredAt },

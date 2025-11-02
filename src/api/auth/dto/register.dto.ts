@@ -12,17 +12,17 @@ export class RegisterDto {
   @IsNotDisposableEmail()
   email: string;
 
-  @ApiProperty({
-    example: '+91',
-  })
-  @IsNotEmpty()
-  countryCode: string;
+  // @ApiProperty({
+  //   example: '+91',
+  // })
+  // @IsNotEmpty()
+  // countryCode: string;
 
-  @ApiProperty({
-    example: '9978678789',
-  })
-  @IsNotEmpty()
-  phone: string;
+  // @ApiProperty({
+  //   example: '9978678789',
+  // })
+  // @IsNotEmpty()
+  // phone: string;
 
   @ApiProperty({
     example: 'password',
@@ -44,39 +44,39 @@ export class RegisterDto {
   @IsEnum(Gender)
   gender: Gender;
 
-  @ApiProperty({
-    example: 30,
-  })
-  @IsNotEmpty()
-  age: number;
+  // @ApiProperty({
+  //   example: 30,
+  // })
+  // @IsNotEmpty()
+  // age: number;
 
-  @ApiProperty({
-    example: '90 Bedford Street, Manhattan',
-  })
-  @IsNotEmpty()
-  address: string;
+  // @ApiProperty({
+  //   example: '90 Bedford Street, Manhattan',
+  // })
+  // @IsNotEmpty()
+  // address: string;
 
-  @ApiProperty({
-    example: 'United States',
-  })
-  @IsNotEmpty()
-  country: string;
+  // @ApiProperty({
+  //   example: 'United States',
+  // })
+  // @IsNotEmpty()
+  // country: string;
 
-  @ApiProperty({
-    example: 'New York',
-  })
-  @IsNotEmpty()
-  state: string;
+  // @ApiProperty({
+  //   example: 'New York',
+  // })
+  // @IsNotEmpty()
+  // state: string;
 
-  @ApiProperty({
-    example: 'Manhattan',
-  })
-  @IsNotEmpty()
-  city: string;
+  // @ApiProperty({
+  //   example: 'Manhattan',
+  // })
+  // @IsNotEmpty()
+  // city: string;
 
-  @ApiProperty({
-    example: 100149,
-  })
-  @IsNotEmpty()
-  postalCode: number;
+  // @ApiProperty({
+  //   example: 100149,
+  // })
+  // @IsNotEmpty()
+  // postalCode: number;
 }

@@ -12,6 +12,7 @@ import { AllExceptionsFilter } from './common/all-exceptions.filter';
 import * as session from 'express-session';
 
 async function bootstrap() {
+
   // SSL certificate path
   const isSecure = process.env.IS_SECURE === 'true';
   let httpsOptions: { key: Buffer; cert: Buffer; ca: Buffer[] };
@@ -59,12 +60,12 @@ async function bootstrap() {
       )
       .addServer(process.env.APP_URL)
       .setVersion(process.env.API_VERSION)
-      .addApiKey({
-        type: 'apiKey',
-        name: 'Api-Key',
-        in: 'header',
-        description: 'API Key',
-      })
+      // .addApiKey({
+      //   type: 'apiKey',
+      //   name: 'Api-Key',
+      //   in: 'header',
+      //   description: 'API Key',
+      // })
       .addBearerAuth()
       .build();
     const document = SwaggerModule.createDocument(app, config);
