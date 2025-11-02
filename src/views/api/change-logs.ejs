@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Changelogs | <%= process.env.APP_NAME || "Loosh App" %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="<%= process.env.APP_URL  %>/images/favicon.ico"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style type="text/css">
+      body,
+      html {
+        margin-top: 20px;
+        font-family: 'Inter', sans-serif;
+      }
+
+      .badge {
+        padding: 6px 8px;
+        font-family: 'Inter', sans-serif;
+      }
+
+      .badge-primary {
+        background-color: #dd6b63;
+      }
+
+      .text-muted {
+        color: #8492a6 !important;
+      }
+
+      .bg-light {
+        background-color: #add8e624 !important;
+      }
+
+      ul {
+        list-style-position: outside;
+      }
+
+      .text-success {
+        color: #0f84ab !important;
+      }
+
+      a,
+      code {
+        color: #dd6b63 !important;
+      }
+
+      .container h1,
+      .container h4 {
+        font-weight: bold;
+        color: #dd6b63;
+      }
+
+      .display {
+        font-family: 'Playfair', serif;
+        font-weight: 600;
+      }
+
+      code {
+        text-align: left;
+        font-size: 87.5%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.min.css"
+      integrity="sha256-nwNjrH7J9zS/Ti4twtWX7OsC5QdQHCIKTv5cLMsGo68="
+      crossorigin="anonymous"
+    />
+    <div class="container">
+      <div class="row justify-content-center">
+        <h1 class="col-12 pt-2 pb-4 display">
+          <%= process.env.APP_NAME || "Loosh App" %> API Changelogs
+        </h1>
+        <hr />
+        <div class="col-lg-12 col-md-12 col-12 mx-auto my-auto">
+          <span class="h6 font-weight-bold">Base URL:</span>
+          <a href="<%= process.env.APP_URL || "http://localhost:3017" %>" target="_blank"><%= process.env.APP_URL || "http://localhost:3017" %></a>
+        </div>
+        <div class="col-lg-12 col-md-12 col-12 mx-auto my-auto">
+          <span class="h6 font-weight-bold">Swagger UI:</span>
+          <a href="<%= process.env.APP_URL || "http://localhost:3017" %>/api/documentation" target="_blank"><%= process.env.APP_URL || "http://localhost:3017" %>/api/documentation</a>
+        </div>
+        <br />
+        <div class="col-lg-12 col-md-12 col-12 mx-auto my-auto">
+          <div class="row d-flex">
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h5 class="mt-3 h5 font-weight-bold">v<%= process.env.API_VERSION || "1.0" %></h5>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">06 Sep, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/users/report/{id}</code>
+                  <br />
+                  &#10003; Report user by id
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/app-feedback</code>
+                  <br />
+                  &#10003; Add app feedback
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/home/unread-count</code>
+                  <br />
+                  &#10003; Added <b>totalRequestsCount</b>, <b>incomingRequestsCount</b> and <b>myRequestsCount</b> parameters to response.
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">04 Sep, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/home/unread-count</code>
+                  <br />
+                  &#10003; Home page unread counts
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">01 Sep, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/users/toggle-notification</code>
+                  <br />
+                  &#10003; Toggle notification
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/logout</code>
+                  <br />
+                  &#10003; Added <b>deviceId</b> request parameter
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">31 Aug, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/users/transaction-history</code>
+                  <br />
+                  &#10003; Get transaction history
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">23 Aug, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/product/calculate-distance/{id}</code>
+                  <br />
+                  &#10003; Calculate distance of product by id
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">10 Aug, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/contact</code>
+                  <br />
+                  &#10003; Send contact mail
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>PUT /api/v1/product/booking-requests/{id}</code>
+                  <br />
+                  &#10003; Added <b>reason</b> request parameter 
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/product/report/{id}</code>
+                  <br />
+                  &#10003; Report product by id
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/feedbacks/report/{id}</code>
+                  <br />
+                  &#10003; Report feedback by id
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">08 Aug, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>DELETE /api/v1/feedbacks/{id}</code>
+                  <br />
+                  &#10003; Delete feedback by id
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">05 Aug, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>PUT /api/v1/feedbacks/{id}</code>
+                  <br />
+                  &#10003; Update feedback by id
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/notifications</code>
+                  <br />
+                  &#10003; Notification list
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">05 Aug, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/feedbacks/product/{id}</code>
+                  <br />
+                  &#10003; Get feedbacks by product id
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/feedbacks</code>
+                  <br />
+                  &#10003; Add feedback
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/feedbacks/{id}</code>
+                  <br />
+                  &#10003; Get feedback by id
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/product/{id}</code>
+                  <br />
+                  &#10003; Added parameters to respose <b>ratings</b>, <b>oneStars</b>, <b>twoStars</b>, <b>threeStars</b>, <b>fourStars</b> and <b>fiveStars</b>.
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">02 Aug, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/product/filters/list</code>
+                  <br />
+                  &#10003; Added <b>lenderStatuses</b> and <b>borrowerStatuses</b> to response
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/product/active-orders/list</code>
+                  <br />
+                  &#10003; Product active orders
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/product/order-history/list</code>
+                  <br />
+                  &#10003; Product order history
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">01 Aug, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>PUT /api/v1/product/borrow/{id}</code>
+                  <br />
+                  &#10003; Edit product borrow
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>DELETE /api/v1/product/borrow/{id}</code>
+                  <br />
+                  &#10003; Delete product borrow
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/product/booking-requests/list</code>
+                  <br />
+                  &#10003; Product booking requests by user
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>PUT /api/v1/product/booking-requests/{id}</code>
+                  <br />
+                  &#10003; Edit product borrow status
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">28 Jul, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/wishlist</code>
+                  <br />
+                  &#10003; Favourite product list
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/wishlist/{id}</code>
+                  <br />
+                  &#10003; Favourite/Unfavourite product
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">25 Jul, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/product/disabled-slots/{id}</code>
+                  <br />
+                  &#10003; Product borrow disable slots
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">24 Jul, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/product/booking-requests/{userId}</code>
+                  <br />
+                  &#10003; Product booking requests by user
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/product</code>
+                  <br />
+                  &#10003; Added <b>imageOrder</b> to request parameter
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>PUT /api/v1/product/{id}</code>
+                  <br />
+                  &#10003; Added <b>imageOrder</b> to request parameter
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/home</code>
+                  <br />
+                  &#10003; Added <b>categoryFilter</b>, <b>brandFilter</b>, <b>sizeFilter</b> and <b>colourFilter</b> to request parameter
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/product/borrow/{id}</code>
+                  <br />
+                  &#10003; Product borrow
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">21 Jul, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/home</code>
+                  <br />
+                  &#10003; Added <b>filter</b> request parameter
+                  <br />
+                  &#10003; Changed name of <b>filter</b> to <b>type</b> request parameter
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">09 Jul, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/users</code>
+                  <br />
+                  &#10003; Added <b>credits</b> to all users modal
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">09 Jul, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/product</code>
+                  <br />
+                  &#10003; Product list
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/product</code>
+                  <br />
+                  &#10003; Add new product
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/product/user/{id}</code>
+                  <br />
+                  &#10003; Product list by user
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/product/{id}</code>
+                  <br />
+                  &#10003; Product details by id
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>PUT /api/v1/product/{id}</code>
+                  <br />
+                  &#10003; Edit product
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>DELETE /api/v1/product/{id}</code>
+                  <br />
+                  &#10003; Delete product
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>DELETE /api/v1/product/image/{id}</code>
+                  <br />
+                  &#10003; Delete product image
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/home</code>
+                  <br />
+                  &#10003; Home page data
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/product/filters/list</code>
+                  <br />
+                  &#10003; Product filters
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">04 Jul, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>PUT /api/v1/users/address</code>
+                  <br />
+                  &#10003; Added <b>houseNumberExtension</b> parameter to
+                  request body
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">29 Jun, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>PUT /api/v1/users/address</code>
+                  <br />
+                  &#10003; Added <b>longitude</b> and <b>latitude</b> parameter
+                  to request body
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/login</code>
+                  <br />
+                  &#10003; Added <b>isFirstTimeUser</b> parameter to response
+                  object
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>DELETE /api/v1/users</code>
+                  <br />
+                  &#10003; Added <b>description</b> body parameter for user
+                  deletion reason
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">24 Jun, 2023</h6>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/device-tokens</code>
+                  <br />
+                  &#10003; Register device token for push notification
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/send-notification</code>
+                  <br />
+                  &#10003; Send test push notification
+                </li>
+              </ul>
+            </div>
+            <div class="col-lg-10" style="border-left: 1px solid #88bbcc1a">
+              <h6 class="mt-3 h6">22 Jun, 2023</h6>
+              <span class="badge badge-primary">Initial release</span>
+              <ul class="mt-3">
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/register</code>
+                  <br />
+                  &#10003; Register user
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/login</code>
+                  <br />
+                  &#10003; Login user
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/social-login </code>
+                  <br />
+                  &#10003; Social login
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/forgot-password Forgot Password</code>
+                  <br />
+                  &#10003; Forgot Password
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/verify-reset-password-otp</code>
+                  <br />
+                  &#10003; Verify Reset Password OTP
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/reset-password</code>
+                  <br />
+                  &#10003; Reset Password
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/logout</code>
+                  <br />
+                  &#10003; Logout user
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/check-app-version</code>
+                  <br />
+                  &#10003; Check app version
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>GET /api/v1/users</code>
+                  <br />
+                  &#10003; Get login user details
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>PUT /api/v1/users</code>
+                  <br />
+                  &#10003; Update user details
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>DELETE /api/v1/users </code>
+                  <br />
+                  &#10003; Delete user
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>PUT /api/v1/users/address</code>
+                  <br />
+                  &#10003; Update user address
+                </li>
+                <li class="text-muted ml-3 mb-2">
+                  <code>POST /api/v1/users/change-password</code>
+                  <br />
+                  &#10003; Change password
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
