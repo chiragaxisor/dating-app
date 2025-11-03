@@ -132,31 +132,31 @@ export const sendPush = async (
   const myDataSource = connection.connect();
 
   if (tokens.length > 0) {
-    await admin
-      .messaging()
-      .sendToDevice(tokens, payload)
-      .then(async (result: any) => {
-        const failedTokens = [];
+    // await admin
+    //   .messaging()
+    //   .sendToDevice(tokens, payload)
+    //   .then(async (result: any) => {
+    //     const failedTokens = [];
 
-        result.results.forEach((deviceResult, index) => {
-          if (deviceResult.error) {
-            failedTokens.push(tokens[index]);
-            // Now use this token to delete it from your DB, or mark it failed according to your requirements.
-          }
-        });
+    //     result.results.forEach((deviceResult, index) => {
+    //       if (deviceResult.error) {
+    //         failedTokens.push(tokens[index]);
+    //         // Now use this token to delete it from your DB, or mark it failed according to your requirements.
+    //       }
+    //     });
 
-        if (failedTokens.length > 0)
-          // Delete unuse tokens
-          await (await myDataSource)
-            .getRepository(DeviceTokens)
-            .createQueryBuilder()
-            .delete()
-            .from(DeviceTokens)
-            .where('token IN(:...token)', { token: failedTokens })
-            .execute();
-      })
-      .catch((error: any) => {
-        console.log(error);
-      });
+    //     if (failedTokens.length > 0)
+    //       // Delete unuse tokens
+    //       await (await myDataSource)
+    //         .getRepository(DeviceTokens)
+    //         .createQueryBuilder()
+    //         .delete()
+    //         .from(DeviceTokens)
+    //         .where('token IN(:...token)', { token: failedTokens })
+    //         .execute();
+    //   })
+    //   .catch((error: any) => {
+    //     console.log(error);
+    //   });
   }
 };
