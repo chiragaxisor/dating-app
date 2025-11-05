@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Post,
   Put,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -18,6 +19,7 @@ import {
   ApiBearerAuth,
   ApiConsumes,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiSecurity,
   ApiTags,
@@ -38,6 +40,7 @@ import { ChangePasswordDto } from './dtos/change-password.dto';
 import { UpdateProfileDto } from './dtos/update-profile.dto';
 import { Users } from './entities/user.entity';
 import { UsersService } from './users.service';
+import { ApproveOrRejectDto } from './dtos/approve-or-reject.dto';
 
 @ApiTags('User')
 @Controller('api/v1/users')
@@ -69,6 +72,47 @@ export class UsersController {
         enableImplicitConversion: true,
         excludeExtraneousValues: true,
       }),
+    };
+  }
+  
+  @Get('list')
+  @ApiOperation({
+    summary: 'Get all user list',
+  })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse(USER_RESPONSE)
+  @ApiResponse(UNAUTHORIZE_RESPONSE)
+  async userlists(@AuthUser() authUser: Users,
+    @Query('search') search?: string,
+    @Query('page') _page?: string,
+    @Query('limit') _limit?: string,) {
+    // const user: Users = await this.usersService.getUsers(authUser.id);
+
+    const page = Number(_page) || 1;
+    const limit = Number(_limit);
+
+    const [users, total] = await this.usersService.getUsers(
+      search,
+      page,
+      limit,
+      authUser,
+    );
+
+    return {
+      message: 'Success',
+      data: plainToInstance(Users, users, {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true,
+      }),
+      meta: {
+        totalItems: total,
+        itemsPerPage: limit ? limit : total,
+        totalPages: limit ? Math.ceil(Number(total) / limit) : 1,
+        currentPage: page ? page : 1,
+      },
     };
   }
 
@@ -106,6 +150,35 @@ export class UsersController {
         enableImplicitConversion: true,
         excludeExtraneousValues: true,
       }),
+    };
+  }
+  
+  /**
+   * Approve or Reject User
+   * @param authUser
+   * @param approveOrRejectDto
+   * @returns
+   */
+  @Post('/approve-or-reject')
+  @ApiOperation({
+    summary: 'Update user details',
+    description: `Action type: "approve" or "reject"`,
+  })
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse(USER_UPDATE_PROFILE_RESPONSE)
+  @ApiResponse(UNAUTHORIZE_RESPONSE)
+  async approveOrRejectUser(
+    @AuthUser() authUser: Users,
+    @Body() approveOrRejectDto: ApproveOrRejectDto,
+  ) {
+    const message  = await this.usersService.approveOrRejectUser(
+      approveOrRejectDto,
+      authUser,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: message.message,
     };
   }
 
