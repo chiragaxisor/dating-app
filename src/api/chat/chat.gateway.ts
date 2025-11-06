@@ -24,11 +24,8 @@ import {
   sendPush,
 } from 'src/common/helper/common.helper';
 import { castToStorage } from 'src/common/helper/fileupload.helper';
-
-// import { WebsocketExceptionsFilter } from 'src/common/filters/websocket-exceptions.filter';
 import { WebsocketExceptionsFilter } from 'src/common/web-socket-exception.filter';
 import { UserBlocks } from '../users/entities/user-blocks.entity';
-// import { FollowedUsers } from '../follower-following/entities/followed-users.entity';
 
 @WebSocketGateway({
   credentials: true,
@@ -56,6 +53,10 @@ export class ChatGateway {
   @SubscribeMessage('connection')
   async handleConnection(@ConnectedSocket() socket: Socket) {
     // Status online
+
+    console.log(socket['user']);
+    
+
     await this.usersRepository.update(socket['user'].id, { isOnline: true });
 
     socket.broadcast.emit('status online', {

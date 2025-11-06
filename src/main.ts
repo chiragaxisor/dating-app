@@ -7,9 +7,13 @@ import * as basicAuth from 'express-basic-auth';
 import * as firebaseAdmin from 'firebase-admin';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { join } from 'path';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './common/all-exceptions.filter';
 import * as session from 'express-session';
+import { SocketAdapter } from './api/chat/socket.adapter';
+import { JwtService } from '@nestjs/jwt';
+import { AccessTokensService } from './api/access-tokens/access-tokens.service';
+import { UsersService } from './api/users/users.service';
 
 async function bootstrap() {
 
@@ -83,12 +87,22 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      // exceptionFactory: (errors) => new BadRequestException(errors),
+      exceptionFactory: (errors) => new BadRequestException(errors),
     }),
   );
 
-  const { httpAdapter } = app.get(HttpAdapterHost);
-  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
+  // const { httpAdapter } = app.get(HttpAdapterHost);
+  // app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
+
+  app.useWebSocketAdapter(
+    new SocketAdapter(
+      app,
+      app.get(JwtService),
+      app.get(AccessTokensService),
+      app.get(UsersService),
+    ),
+  );
+
 
   const allowedOrigins = process.env.CORS_DOMAINS || '';
 
