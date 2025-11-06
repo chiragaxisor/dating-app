@@ -12,4 +12,24 @@ export class ApiController {
   async apiChangeLogs() {
     return true;
   }
+
+  /**
+   * Chat
+   */
+  @Get('chat')
+  @Render('chat/index')
+  async Chat() {
+    return null;
+  }
+
+  /**
+   * Chat changelogs
+   */
+  @Get('chat/changelogs')
+  @Render('chat/changelogs')
+  async ChatChangelog() {
+    return null;
+  }
+
+
 }

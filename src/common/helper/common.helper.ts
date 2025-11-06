@@ -160,3 +160,35 @@ export const sendPush = async (
     //   });
   }
 };
+
+/**
+ * decrypt message
+ * @param encryptToText
+ * @returns
+ */
+export const decryptMessage = (encryptToText: string) => {
+  try {
+    const key = Buffer.from(process.env.AES_ENC_KEY_MESSAGE, 'utf-8');
+    const iv = Buffer.from(process.env.AES_IV_MESSAGE, 'utf-8');
+    const decipher = createDecipheriv('aes-256-cbc', key, iv);
+
+    let decrypted = decipher.update(encryptToText, 'base64', 'utf-8');
+    decrypted += decipher.final('utf-8');
+
+    return decrypted;
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+/**
+ * Convert mimetype
+ * @param user
+ * @returns
+ */
+export const convertMimeType = (file: Express.Multer.File) => {
+  const type = file.mimetype.split('/')[0];
+  const extension = file.originalname.split('.').pop().toLowerCase();
+
+  return `${type}/${extension}`;
+};

@@ -99,6 +99,10 @@ export class Users {
   @Expose()
   isNotificationOn: boolean;
 
+  @Column({ default: false })
+  @Expose()
+  isOnline: boolean;
+
   // @Column({
   //   default: null,
   // })

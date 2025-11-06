@@ -4,9 +4,10 @@ import { ApiController } from './api.controller';
 import { AuthModule } from './auth/auth.module';
 import { DeviceTokenModule } from './device-tokens/device-token.module';
 import { AppVersionsModule } from './app-versions/app-versions.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
-  imports: [AuthModule, DeviceTokenModule, AppVersionsModule],
+  imports: [AuthModule, DeviceTokenModule, AppVersionsModule, ChatModule],
   controllers: [ApiController],
   providers: [ApiService],
   exports: [ApiService],

@@ -48,3 +48,10 @@ export enum MediaTypes {
 }
 
 export const DEFAULT_FIXED_VALUE = 2;
+
+export enum MessageTypes {
+  TEXT = 'text',
+  IMAGE = 'images',
+}
+
+

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Real-time chat | <%= process.env.APP_NAME %>
+  </title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="shortcut icon" type="image/x-icon" href="<%= process.env.APP_URL  %>/images/favicon.ico" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800" rel="stylesheet" />
+  <link rel="shortcut icon" type="image/x-icon" href="<%= process.env.APP_URL  %>/images/favicon.ico" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    body,
+    html {
+      margin-top: 20px;
+      font-family: 'Manrope', sans-serif;
+      background-color: #0C134F;
+    }
+
+    .badge {
+      padding: 6px 8px;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .badge-primary {
+      background-color: #7447FF;
+    }
+
+    .text-muted {
+      color: #8492a6 !important;
+    }
+
+    .bg-light {
+      background-color: #add8e624 !important;
+    }
+
+    ul {
+      list-style-position: outside;
+    }
+
+    .text-success {
+      color: #0f84ab !important;
+    }
+
+    a,
+    code {
+      color: #0C134F !important;
+    }
+
+    a {
+      text-decoration: underline;
+    }
+
+    .container h1,
+    .container h4 {
+      font-weight: bold;
+      color: #7447FF;
+    }
+
+    code {
+      text-align: left;
+      font-size: 87.5%;
+    }
+
+    .radius {
+      border-radius: 10px;
+    }
+
+    .chat-box {
+      overflow: auto;
+      vertical-align: bottom !important;
+    }
+
+    .height-full {
+      height: calc(100vh - 140px);
+    }
+
+    .txetfield {
+      height: 52px;
+      border-radius: 14px;
+      background-color: #83899B;
+      border: none;
+      font-size: 14px;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    .bolder {
+      font-weight: 800;
+    }
+
+    input {
+      background-color: #e8e8e8 !important;
+    }
+
+    .translate-middle-y {
+      transform: translateY(-50%) !important;
+    }
+
+    .end-0 {
+      right: 0 !important;
+    }
+
+    .top-50 {
+      top: 50% !important;
+    }
+
+    *:focus {
+      box-shadow: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <h1 class="col-12 pt-2 pb-2 display text-center">
+        <%= process.env.APP_NAME %> Chat
+      </h1>
+      <div class="container d-flex justify-content-center">
+        <div
+          class="col-12 col-md-6 col-sm-8 bg-white radius p-3 d-flex flex-column justify-content-between height-full">
+          <div class="row no-gutters d-flex align-items-center border-bottom pb-3">
+            <div class="col-auto">
+              <img class="img rounded-circle" width="42"
+                src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjUwIiBmaWxsPSIjMEEwNjJFIi8+CjxtYXNrIGlkPSJtYXNrMF83MThfMzY1NjIiIHN0eWxlPSJtYXNrLXR5cGU6bHVtaW5hbmNlIiBtYXNrVW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4PSIwIiB5PSIwIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCI+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjUwIiBmaWxsPSJ3aGl0ZSIvPgo8L21hc2s+CjxnIG1hc2s9InVybCgjbWFzazBfNzE4XzM2NTYyKSI+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNNjAuNjY2NyA1OC42NjY3VjY2LjE2NjdDNjAuNjY2NyA2Ny42MTExIDM5LjMzMzMgNjcuMTI1MyAzOS4zMzMzIDY1LjA0MjZDMzkuMzMzMyA2My4wODI4IDM5LjM3MzUgNTQuMjAwNSAzOS4zMzMzIDQ1LjA2MjZDMzQuNTU2IDM4Ljg3MDQgMzQuNTU2IDM1IDM4LjMzMzMgMzFDNDIuMTEwNyAyNyA2OSAyNSA2OSAyNUM2OSAyNSA3MS4wMTc1IDQ0LjQwMzMgNzEuMzMzMyA0OS42NjY3QzcxLjQ2MDQgNTEuNzgzNCA3Mi44MzMzIDU4LjY2NjcgNjcuNSA1OC42NjY3QzY0LjUwMTQgNTguNjY2NyA2MC42NjY3IDU4LjY2NjcgNjAuNjY2NyA1OC42NjY3WiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzcxOF8zNjU2MikiLz4KPGcgc3R5bGU9Im1peC1ibGVuZC1tb2RlOm11bHRpcGx5Ij4KPHBhdGggZD0iTTYwLjY1ODggNTguMDI2QzUzLjMyNTQgNTcuMTkyNyA0OC4zMzMzIDU0IDQ4LjMzMzMgNTRDNDguMzMzMyA1NCA1MSA2MC4zMzMzIDYwLjY1ODggNjIuMDUyVjU4LjAyNloiIGZpbGw9IiNGRkQ3QjgiLz4KPC9nPgo8cGF0aCBkPSJNODUgODEuMTAzMUM4Ny4xMTU2IDg1LjQwNDYgODguNzgyMyA5Mi41MTU3IDkwIDEwMi40MzZIMTBDMTEuMjE4MyA5Mi41MTQ2IDEyLjg4NSA4NS40MDM1IDE1IDgxLjEwMzFDMTcuMTA4MSA3Ni44MTY4IDM2LjY2NjcgNjguNTY2OCAzNi42NjY3IDY4LjU2NjhDMzYuNjY2NyA2OC41NjY4IDM3LjA1NjEgNjQuNzk1NSAzOCA2NC4yNTVDMzguOTQzOSA2My43MTQ1IDYwLjg3NTcgNjMuNzE0NSA2MiA2NC4yNTVDNjMuMTI0NCA2NC43OTU1IDYzLjMzMzMgNjguNTY0NSA2My4zMzMzIDY4LjU2NDVDNjMuMzMzMyA2OC41NjQ1IDgyLjg5NjEgNzYuODI1NCA4NSA4MS4xMDMxWiIgZmlsbD0iIzc0NDdGRiIvPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTQzLjY3MzUgMzUuMDY4OUM0Mi42MTMzIDM0LjE1ODUgNDEuMzI1NCAzMy41NDU3IDM5LjUwNDggMzQuNDkxNkMzNS4xODgzIDM2LjczNDMgMzguMDUzMSA0NS4zNzg4IDQyLjg4MzUgNDUuMjEwMUM0NC41NDkxIDQ1LjE1MiA0My43ODYgNDguNDczNSAzOS4zMzMzIDUwLjY2NzJDMzkuMzMzMyA0Ny4xNjcyIDM0IDM4LjUwMDUgMzMuNTM0OSAzMC42MDk3QzI4LjE2NjcgMjguNjExNCAyOS41IDIwLjYxNTggMzMuMTg1OSAyMC42MTU4QzMyLjU5NjQgMTMuMjg1MiA0NC4zMzMzIDkuNTAwNDkgNDguODc4IDEzLjcwNThDNTMuNSA4LjE2NzE1IDY1LjE2NjcgMTEuMDAwNSA2NS44NzEyIDE1LjgwNTVDNzMuODkzMyAxMS41MjI5IDc5LjE2NjcgMjMuODMzOCA3MS42NTUgMjguNjExNEM2OC41NjQyIDMwLjU3NzMgNjEuMzMzMyAzMS4zMjY0IDUwLjg5NTggMzEuMzI2NEM0NS44ODcgMzEuMzI2NCA0OC43Njc1IDQzLjA0OTggNTAuMzMzMyA0Ni44MzM4QzUyLjMzMzMgNTEuNjY3MiA2My41IDUyLjMzMzggNjcgNTEuODMzOEM2OS43MzMyIDUxLjQ0MzQgNzEuMTY2NyA1MC4zMzM4IDcxLjMzMzMgNDkuNjY3MkM3My44MzMzIDU2LjMzMzggNzAuNjY2NiA2MC4zMzM4IDY1LjY2NjcgNjAuMzMzOEM1Ny4xNjY3IDYwLjMzMzggNDguNjY2NyA1Ny44MzM4IDQ3LjMzMzMgNTEuNjY3MkM0Ni4yNzIyIDQ2Ljc1OTQgNDYuMzMwNCAzOC44MzkxIDQzLjY3MzUgMzUuMDY4OVoiIGZpbGw9IiM4NTRGNEYiLz4KPC9nPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDBfbGluZWFyXzcxOF8zNjU2MiIgeDE9IjM1LjYxNDMiIHkxPSIyNSIgeDI9IjM1LjYxNDMiIHkyPSI2Ni45OTU3IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiNGRkQ0QjMiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZEQ0MyIi8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg==' />
+            </div>
+            <div class="col d-flex flex-column ml-2">
+              <span id="user_name" class="display h5 mb-0 pb-0 bolder">User</span>
+              <span id="online_status" class="small text-secondary">Online</span>
+            </div>
+          </div>
+          <div class="h-100 container chat_con chat-box">
+            <div class="row chat"></div>
+          </div>
+          <div class="mt-3">
+            <form onsubmit="return false;">
+              <div class="position-relative">
+                <input type="text" class="form-control textarea-control txetfield" placeholder="Type here..."
+                  id="message" autofocus />
+                <button id="send_message"
+                  class="btn position-absolute end-0 top-50 translate-middle-y rounded-circle p-2 mr-2" type="submit">
+                  <img
+                    src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIxIDEyLjA0N0MyMS4wMDkgMTEuMzY1OSAyMC42MzQ1IDEwLjczOTggMjAuMDI2NCAxMC40MTEyTDUuODU1OCAyLjczOTU1QzUuMjIxMSAyLjM4NjA5IDQuNDcyODkgMi40Mjk1MSAzLjg3NDgyIDIuODMxOTNDMy4yNjU3NyAzLjI0MTEyIDIuOTU0MDMgNC4yMTUyMSAzLjEyNDI5IDQuOTE4NzZMNC40NDcxOCAxMC4zOEM0LjU4Mjk4IDEwLjk0IDUuMDkxNjMgMTEuMzM0MyA1LjY3NjgxIDExLjMzMThMMTMuNTYyNyAxMS4zMDc3QzEzLjk2NjUgMTEuMjk5NyAxNC4yOTQgMTEuNjIyNCAxNC4yODU5IDEyLjAyMDNDMTQuMjg0NyAxMi40MTE1IDEzLjk2MiAxMi43Mjk0IDEzLjU1ODIgMTIuNzM3NEw1LjY2NDggMTIuNzU1NUM1LjA3OTYyIDEyLjc1NjYgNC41Njg0OSAxMy4xNTI3IDQuNDI5MTUgMTMuNzEzNUwzLjA1OTQ5IDE5LjE5NjRDMi44OTMxOSAxOS44NDQzIDMuMDgyNzkgMjAuNDkxMiAzLjU0Njc1IDIwLjk0ODNDMy42MDEzMyAyMS4wMDIxIDMuNjYyNzQgMjEuMDYyNiAzLjcyNDE5IDIxLjEwOTdDNC4zMjUwMyAyMS41NjY0IDUuMTExOTMgMjEuNjI0NyA1Ljc4Mzc2IDIxLjI3MkwyMC4wMDI0IDEzLjY3NTNDMjAuNjEyNiAxMy4zNTY1IDIwLjk5MSAxMi43MjgyIDIxIDEyLjA0N1oiIGZpbGw9IiM4NjUyRkYiLz4KPC9zdmc+Cg==" />
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      var urlParams = new URLSearchParams(window.location.search);
+
+      var senderId = prompt('Enter Sender id', 7); //send
+      var token = prompt(
+        'Enter JWT token',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVuaXF1YWwuZGV2QG1haWxpbmF0b3IuY29tIiwic3ViIjoiNyIsImp0aSI6IjMxY2U4NjViYTM1YzlkMTliZjc4MjkxYmJlODliN2NlZmVlNjc4MDE3ZWZjMWE1YWJiZTE5MTM3YzU0NmIzNWQiLCJpYXQiOjE3MDAyMDU4OTEsImV4cCI6MTcwMjYyNTA5MX0.F54aDOWMLhKXRqDFQXy5dCqJlEr6qP2eaGfuhrMChW8',
+      ); // sender Token
+      var chatId = prompt('Enter chat id', 1);
+      var receiverId = prompt('Enter receiver id', 11);
+
+      $('#user_name').text(receiverId);
+
+      var socket = io();
+      var url = window.location.origin;
+
+      socket = io.connect(url, {
+        auth: {
+          token: token,
+        },
+      });
+
+      socket.on('connect', function () {
+        socket.emit('join room', {
+          chatId,
+        });
+      });
+
+      socket.on('unauthorized', (error) => {
+        if (
+          error.data.type == 'UnauthorizedError' ||
+          error.data.code == 'invalid_token'
+        ) {
+          console.log('User token has expired');
+        }
+      });
+
+      $('#send_message').click(function () {
+        var message = $('#message').val();
+        if (message !== '') {
+          socket.emit('private message', {
+            message,
+            chatId,
+            senderId,
+            messageType: 'text',
+            // messageType: 'images',
+          });
+        }
+      });
+
+      socket.on('private message', function (data) {
+        $('#message').val('');
+        if (data.senderId == senderId) {
+          var c_name = 'right';
+          var f_color = '#FFFFFF';
+          var b_color = '#7447FF';
+          var border = '10px 10px 0px 10px';
+          var align = 'align-items-end';
+        } else {
+          var c_name = 'left';
+          var f_color = '#7447FF';
+          var b_color = '#E9E2FF';
+          var border = '10px 10px 10px 0px';
+          var align = 'align-items-start';
+        }
+        var u_name = 'chat';
+        $('.chat').append(
+          `<div class="col-12 mt-2 pl-0 pr-0 d-inline-flex flex-column ${align}">
+              <div
+                style="width: fit-content;
+                      font-size: 13px;
+                      font-weight: 400;
+                      padding: 10px 16px 10px 16px;
+                      border-radius: ${border};
+                      background-color: ${b_color};
+                      color: ${f_color};"
+              >
+                ${data.message}
+              </div>
+              <div 
+                style="color: #A0A0A0;
+                      font-size: 10px;"
+              >
+                ${moment.unix(data.createdAt).fromNow()}
+              </div>
+            </div>`,
+        );
+        $('.chat_con').animate(
+          {
+            scrollTop: $('.chat-box').height(),
+          },
+          'slow',
+        );
+      });
+
+      socket.on('disconnect', function () {
+        console.log('A user disconnected');
+      });
+    });
+  </script>
+</body>
+
+</html>

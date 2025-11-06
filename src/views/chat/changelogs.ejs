@@ -1,0 +1,411 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Socket Events/Listeners | <%= process.env.APP_NAME %>
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="shortcut icon" type="image/x-icon" href="<%= process.env.APP_URL  %>/images/favicon.ico" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800" rel="stylesheet" />
+  <style type="text/css">
+    body,
+    html {
+      margin-top: 20px;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .badge {
+      padding: 6px 8px;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .badge-primary {
+      background-color: #7447FF;
+    }
+
+    .text-muted {
+      color: #8492a6 !important;
+    }
+
+    .bg-light {
+      background-color: #add8e624 !important;
+    }
+
+    ul {
+      list-style-position: outside;
+    }
+
+    .text-success {
+      color: #0f84ab !important;
+    }
+
+    a,
+    code {
+      color: #0C134F !important;
+    }
+
+    a {
+      text-decoration: underline;
+    }
+
+    .container h1,
+    .container h4 {
+      font-weight: bold;
+      color: #7447FF;
+    }
+
+    code {
+      text-align: left;
+      font-size: 87.5%;
+    }
+  </style>
+
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.min.css"
+    integrity="sha256-nwNjrH7J9zS/Ti4twtWX7OsC5QdQHCIKTv5cLMsGo68=" crossorigin="anonymous" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <h1 class="col-12 pt-2 pb-4 display">
+        <%= process.env.APP_NAME %> Socket Events/Listeners (Socekt.io
+          supported 4.0+)
+      </h1>
+      <hr />
+      <br />
+
+      <div class="col-lg-12 col-md-12 col-12 mx-auto my-auto">
+        <p>
+          <b>Socket URL:</b>
+          <code><a href="<%= process.env.APP_URL %>"
+                ><%= process.env.APP_URL %></a
+              ></code>
+        </p>
+        <p><b>Message Types: </b> text, images<br /></p>
+
+        <div class="row d-flex">
+          <hr style="border-top: 1px solid #88bbcc1a" />
+          <div class="col-lg-12" style="border-left: 1px solid #88bbcc1a">
+            <h6 class="mt-4">18 Aug 2023</h6>
+
+            <br /><span class="badge badge-primary">On connection</span>
+            <ul class="mt-2">
+              <li class="text-muted ml-3 mb-2">
+                ✓ Require <b>payload</b> parameters in handshake while
+                connecting with socket <br />
+                Parameter name: <b>auth</b>
+                <pre>
+                      <code>
+"auth": {
+  "token": "Bearer Auth Token",
+}
+                      </code>
+                </pre>
+                <br />
+                ✓ This will throw an <b>UnauthorizedException</b> if token is
+                wrong or expired. <br />
+                ✓ On successfull connection server will broadcast emit with
+                <code>"status online"</code> with data
+                <pre>
+                    <code>
+{
+  isOnline: 1,
+  senderId: "1"
+}
+                    </code>
+                  </pre>
+                <br />
+              </li>
+            </ul>
+            <br /><span class="badge badge-primary">Send join room</span>
+            <ul class="mt-2">
+              <li class="text-muted ml-3 mb-2">
+                ✓ Send emit <code>join room</code> to server with following
+                data to join chat room.
+                <pre>
+                      <code>
+{
+  chatId: "1",
+}
+                      </code>
+                </pre>
+              </li>
+            </ul>
+
+            <br /><span class="badge badge-primary">Send/receive private message</span>
+            <ul class="mt-2">
+              <li class="text-muted ml-3 mb-2">
+                ✓ Send emit <code>"private message"</code> to server with
+                following data.
+                <pre>
+                      <code>
+{
+  message: "Hello",
+  chatId: "1",
+  senderId: "1",
+  messageType: "text", // text, images
+}
+                      </code>
+                </pre>
+                ✓ Server will acknowledge back with
+                <code>"private message"</code> to client with following data.
+                <pre>
+                      <code>
+{
+  message: "Hello",
+  chatId: 1,
+  senderId: 1,
+  messageType: "text", // text, images
+  receiverId: 1,
+  messageId: 1,
+  createdAt: 1684240894,
+}
+                      </code>
+                </pre>
+                <b>NOTE: the server will send emit to both users so display a
+                  message once you receive emit
+                  <code>"private message"</code></b>
+                <br />
+              </li>
+              <li class="text-muted ml-3 mb-2">
+                ✓ Server will acknowledge back with
+                <code>"last message"</code> to client with following data.
+                <pre>
+                      <code>
+{
+  "id": 1,
+  "sender": {
+    "id": 1,
+    "userUniqueId": "U06b31e651697603327",
+    "username": "uniqual_dev_001",
+    "firstName": "Uniqual1",
+    "lastName": "Dev1",
+    "email": "uniqual.dev@mailinator.com",
+    "aboutMe": "I am flexible, reliable and possess excellent time keeping skills. I am an enthusiastic, self-motivated, reliable, responsible and hard working person. I am a mature team worker and adaptable to all challenging situations. I am able to work well both in a team environment as well as using own initiative.",
+    "profilePic": "http://localhost:3032/storage/profilePics/6f97a26b91685ed79b3a15e6da3510734.jpg",
+    "isNotificationOn": true,
+    "providerType": null,
+    "dateOfBirth": "01-01-2000",
+    "language": "en",
+    "isSocialLoggedIn": false,
+    "isFirstTimeUser": false,
+    "isBlocked": false,
+    "isPrivate": false,
+    "isOnline": true,
+    "verifiedAt": 1698058564,
+    "deleteAccountUrl": "http://localhost:3032/delete-account/U06b31e651697603327?lang=en",
+    "createdAt": 1697623127,
+    "followStatus": "not followed",
+    "isFollowedYou": "not followed",
+    "userInterests": null,
+    "userImages": null
+  },
+  "receiver": {
+    "id": 2,
+    "userUniqueId": "U4c30aef31697626157",
+    "username": "uniqual_dev_002",
+    "firstName": "Uniqual2",
+    "lastName": "Testing",
+    "email": "uniqualtesting@gmail.com",
+    "aboutMe": null,
+    "profilePic": "https://lh3.googleusercontent.com/a/ACg8ocJAfDZuV7n8bTQr-R1JSqFZ5eQG1G-jGq3F2JWUzehU=s96-c",
+    "isNotificationOn": true,
+    "providerType": "google",
+    "dateOfBirth": null,
+    "language": "en",
+    "isSocialLoggedIn": true,
+    "isFirstTimeUser": true,
+    "isBlocked": false,
+    "isPrivate": true,
+    "isOnline": true,
+    "verifiedAt": 1697626157,
+    "deleteAccountUrl": "http://localhost:3032/delete-account/U4c30aef31697626157?lang=en",
+    "createdAt": 1697645957,
+    "followStatus": "not followed",
+    "isFollowedYou": "not followed",
+    "userInterests": null,
+    "userImages": null
+  },
+  "receiverUser": {
+    "id": 2,
+    "userUniqueId": "U4c30aef31697626157",
+    "username": "uniqual_dev_002",
+    "firstName": "Uniqual2",
+    "lastName": "Testing",
+    "email": "uniqualtesting@gmail.com",
+    "aboutMe": null,
+    "profilePic": "https://lh3.googleusercontent.com/a/ACg8ocJAfDZuV7n8bTQr-R1JSqFZ5eQG1G-jGq3F2JWUzehU=s96-c",
+    "isNotificationOn": true,
+    "providerType": "google",
+    "dateOfBirth": null,
+    "language": "en",
+    "isSocialLoggedIn": true,
+    "isFirstTimeUser": true,
+    "isBlocked": false,
+    "isPrivate": true,
+    "isOnline": true,
+    "verifiedAt": 1697626157,
+    "deleteAccountUrl": "http://localhost:3032/delete-account/U4c30aef31697626157?lang=en",
+    "createdAt": 1697645957,
+    "followStatus": "not followed",
+    "isFollowedYou": "not followed",
+    "userInterests": null,
+    "userImages": null
+  },
+  "lastMessage": "I'm fine",
+  "messageType": "text",
+  "unReadMessageCount": 0,
+  "lastMessageAt": 1700226827,
+  "createdAt": 1700232183
+}
+                      </code>
+                </pre>
+                <b>NOTE: the server will send emit to both users so display a
+                  message once you receive emit <code>"last message"</code></b>
+                <br />
+              </li>
+            </ul>
+            <br /><span class="badge badge-primary">Read message</span>
+            <ul class="mt-2">
+              <li class="text-muted ml-3 mb-2">
+                ✓ Send emit <code>"read message"</code> to server with
+                following data.
+                <pre>
+                      <code>
+{
+  chatId: "1",
+  messageId: "1",
+  senderId: "1",
+  receiverId: "1",
+}
+                      </code>
+                </pre>
+                ✓ Server will acknowledge back with
+                <code>"read message"</code> to client with following data.
+                <pre>
+                      <code>
+{
+  "messageId": 45,
+  "message": "Hii",
+  "messageType": "text",
+  "chatId": 1,
+  "senderId": 113,
+  "createdAt": 1684240894,
+  "isSeen": 1
+}
+                      </code>
+                </pre>
+                <b>NOTE: the server will send emit to both users so display a
+                  message once you receive emit <code>"read message"</code></b>
+                <br />
+              </li>
+            </ul>
+            <br /><span class="badge badge-primary">Status online</span>
+            <ul class="mt-2">
+              <li class="text-muted ml-3 mb-2">
+                ✓ Send emit <code>"status online"</code> to server with
+                following data.
+                <pre>
+                    <code>
+{ 
+  senderId: "1",
+  receiverId: "1"
+}
+                    </code>
+                  </pre>
+                ✓ Server will acknowledge back with
+                <code>"status online"</code> to client with following data.
+                <pre>
+                      <code>
+{ 
+  isOnline: 0,
+  senderId: "1"
+}
+                      </code>
+                </pre>
+                <b>NOTE: the server will send emit to sender
+                  <code>"status online"</code></b>
+                <br />
+              </li>
+            </ul>
+            <br /><span class="badge badge-primary">Active users</span>
+            <ul class="mt-2">
+              <li class="text-muted ml-3 mb-2">
+                ✓ Send emit <code>"active users"</code> to server with
+                following data.
+                <pre>
+                    <code>
+{ 
+  authUserId: "1"
+}
+                    </code>
+                  </pre>
+                ✓ Server will acknowledge back with
+                <code>"active users"</code> to client with following data.
+                <pre>
+                      <code>
+[
+  {
+    "id": 14,
+    "userUniqueId": "Uf86d38481697965067",
+    "username": "uniqual_dev_006",
+    "firstName": "Uniqual6",
+    "lastName": "Dev6",
+    "email": "hit@mailinator.com",
+    "aboutMe": null,
+    "profilePic": "http://localhost:3032/storage/profilePics/28c41d1096bbea661046c42c65837b929c.jpg",
+    "isNotificationOn": true,
+    "dateOfBirth": null,
+    "language": "en",
+    "isSocialLoggedIn": false,
+    "isFirstTimeUser": false,
+    "isBlocked": false,
+    "isPrivate": true,
+    "isOnline": true,
+    "verifiedAt": 1698275386,
+    "deleteAccountUrl": "http://localhost:3032/delete-account/Uf86d38481697965067?lang=en",
+    "createdAt": 1697984867,
+    "followStatus": "not followed",
+    "userInterests": null,
+    "userImages": null
+  }
+]
+                      </code>
+                </pre>
+                <b>NOTE: the server will send emit to sender
+                  <code>"active users"</code></b>
+                <br />
+              </li>
+            </ul>
+            <br /><span class="badge badge-primary">On disconnect</span>
+            <ul class="mt-2">
+              <li class="text-muted ml-3 mb-2">
+                ✓ On disconnect server will broadcast emit with
+                <code>"status online"</code> with data
+                <pre>
+                    <code>
+{ 
+  isOnline: 0,
+  senderId: "1"
+}
+                    </code>
+                  </pre>
+                <br />
+              </li>
+            </ul>
+
+            <br /><br /><br />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--end col-->
+  <!--end row-->
+</body>
+
+</html>
