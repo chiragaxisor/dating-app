@@ -6,8 +6,10 @@ import { DeviceTokenModule } from './device-tokens/device-token.module';
 import { AppVersionsModule } from './app-versions/app-versions.module';
 import { ChatModule } from './chat/chat.module';
 
+import { StickersModule } from './stickers/stickers.module';
+
 @Module({
-  imports: [AuthModule, DeviceTokenModule, AppVersionsModule, ChatModule],
+  imports: [AuthModule, DeviceTokenModule, AppVersionsModule, ChatModule, StickersModule],
   controllers: [ApiController],
   providers: [ApiService],
   exports: [ApiService],

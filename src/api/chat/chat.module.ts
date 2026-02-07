@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ChatController } from './chat.controller';
 import { ChatGateway } from './chat.gateway';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -13,6 +13,9 @@ import { DeviceTokens } from '../device-tokens/entities/device-tokens.entity';
 import { DeviceTokenModule } from '../device-tokens/device-token.module';
 import { UserBlocks } from '../users/entities/user-blocks.entity';
 // import { AwsModule } from '../aws/aws.module';
+import { GroupChat } from './entities/group-chat.entity';
+import { GroupChatMember } from './entities/group-chat-member.entity';
+import { GroupChatMessage } from './entities/group-chat-message.entity';
 
 @Module({
   imports: [
@@ -22,6 +25,9 @@ import { UserBlocks } from '../users/entities/user-blocks.entity';
       Users,
       DeviceTokens,
       UserBlocks,
+      GroupChat,
+      GroupChatMember,
+      GroupChatMessage,
     ]),
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
@@ -30,7 +36,7 @@ import { UserBlocks } from '../users/entities/user-blocks.entity';
       }),
       inject: [ConfigService],
     }),
-    UsersModule,
+    forwardRef(() => UsersModule),
     DeviceTokenModule,
     // AwsModule,
   ],

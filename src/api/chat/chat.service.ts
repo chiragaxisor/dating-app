@@ -13,6 +13,9 @@ import { MessageTypes } from 'src/common/constants';
 import { UserBlocks } from '../users/entities/user-blocks.entity';
 import { isUrlValid } from 'src/common/helper/common.helper';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { GroupChat } from './entities/group-chat.entity';
+import { GroupChatMember } from './entities/group-chat-member.entity';
+import { GroupChatMessage } from './entities/group-chat-message.entity';
 
 
 @Injectable()
@@ -26,6 +29,12 @@ export class ChatService {
     private readonly usersRepository: Repository<Users>,
     @InjectRepository(UserBlocks)
     private readonly userBlocksRepository: Repository<UserBlocks>,
+    @InjectRepository(GroupChat)
+    private readonly groupChatRepository: Repository<GroupChat>,
+    @InjectRepository(GroupChatMember)
+    private readonly groupChatMemberRepository: Repository<GroupChatMember>,
+    @InjectRepository(GroupChatMessage)
+    private readonly groupChatMessageRepository: Repository<GroupChatMessage>,
   ) {}
 
   /**
@@ -196,9 +205,15 @@ export class ChatService {
         return {
           ...chat,
           receiverUser: receiverUser,
-          lastMessage: lastMessageTime?.message
-            ? lastMessageTime.message
-            : null,
+          lastMessage:
+            lastMessageTime?.messageType === MessageTypes.IMAGE ||
+            lastMessageTime?.messageType === MessageTypes.STICKER
+              ? isUrlValid(lastMessageTime.message)
+                ? lastMessageTime.message
+                : castToStorage(lastMessageTime.message)
+              : lastMessageTime?.message
+              ? lastMessageTime.message
+              : null,
           messageType: lastMessageTime?.messageType
             ? lastMessageTime?.messageType
             : null,
@@ -366,7 +381,15 @@ export class ChatService {
     return {
       ...data,
       receiverUser: receiverUser,
-      lastMessage: lastMessageTime?.message ? lastMessageTime.message : null,
+      lastMessage:
+        lastMessageTime?.messageType === MessageTypes.IMAGE ||
+        lastMessageTime?.messageType === MessageTypes.STICKER
+          ? isUrlValid(lastMessageTime.message)
+            ? lastMessageTime.message
+            : castToStorage(lastMessageTime.message)
+          : lastMessageTime?.message
+          ? lastMessageTime.message
+          : null,
       messageType: lastMessageTime?.messageType
         ? lastMessageTime?.messageType
         : null,
@@ -440,7 +463,10 @@ export class ChatService {
       : await queryBuilder.getRawMany();
 
     chatList?.map(async (chatEle) => {
-      if (chatEle.messageType === MessageTypes.IMAGE) {
+      if (
+        chatEle.messageType === MessageTypes.IMAGE ||
+        chatEle.messageType === MessageTypes.STICKER
+      ) {
         chatEle.message = isUrlValid(chatEle.message)
           ? chatEle.message
           : castToStorage(chatEle.message);
@@ -596,5 +622,104 @@ export class ChatService {
 
       await this.chatMessageRepository.remove(chatMessages);
     }
+  }
+
+  /**
+   * Add User to Gender Group
+   * @param user
+   */
+  async addUserToGenderGroup(user: Users) {
+    if (!user.gender) return;
+
+    const groupName = `${
+      user.gender.charAt(0).toUpperCase() + user.gender.slice(1)
+    } Group`;
+
+    let group = await this.groupChatRepository.findOne({
+      where: { name: groupName },
+    });
+
+    if (!group) {
+      group = this.groupChatRepository.create({
+        name: groupName,
+        gender: user.gender,
+      });
+      await this.groupChatRepository.save(group);
+    }
+
+    const isMember = await this.groupChatMemberRepository.findOne({
+      where: {
+        groupChat: { id: group.id },
+        user: { id: user.id },
+      },
+    });
+
+    if (!isMember) {
+      const member = this.groupChatMemberRepository.create({
+        groupChat: group,
+        user: user,
+      });
+      await this.groupChatMemberRepository.save(member);
+    }
+  }
+
+  /**
+   * Get Group Chat List
+   * @param authUser
+   */
+  async getGroupChatList(authUser: Users) {
+    const groups = await this.groupChatMemberRepository.find({
+      where: { user: { id: authUser.id } },
+      relations: ['groupChat'],
+    });
+
+    return groups.map((g) => g.groupChat);
+  }
+
+  /**
+   * Get Group Chat Messages
+   * @param groupId
+   * @param page
+   * @param limit
+   */
+  async getGroupChatMessages(groupId: number, page: number, limit: number) {
+    page = Number(page) || 1;
+    limit = Number(limit) || 20;
+    const skip = (page - 1) * limit;
+    const [messages, total] = await this.groupChatMessageRepository.findAndCount({
+      where: { groupChat: { id: groupId } },
+      order: { createdAt: 'DESC' },
+      take: limit,
+      skip: skip,
+      relations: ['sender'],
+    });
+
+    messages?.map((msg: any) => {
+      if (
+        msg.messageType === MessageTypes.IMAGE ||
+        msg.messageType === MessageTypes.STICKER
+      ) {
+        msg.message = isUrlValid(msg.message)
+          ? msg.message
+          : castToStorage(msg.message);
+      }
+    });
+
+    return [messages, total];
+  }
+
+  /**
+   * Store Group Chat Message
+   * @param payload
+   */
+  async storeGroupChat(payload: any) {
+    return await this.groupChatMessageRepository.save(
+      this.groupChatMessageRepository.create({
+        message: `${payload.message}`,
+        groupChat: { id: payload.groupId },
+        sender: { id: payload.senderId },
+        messageType: payload.messageType,
+      }),
+    );
   }
 }

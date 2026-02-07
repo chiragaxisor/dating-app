@@ -37,9 +37,10 @@ import {
   POST_REQUEST_SUCCESS,
 } from 'src/common/swagger.response';
 import { Users } from '../users/entities/user.entity';
-import { imageFileFilter } from 'src/common/helper/fileupload.helper';
+import { castToStorage, imageFileFilter, uploadFile } from 'src/common/helper/fileupload.helper';
 import { JwtAuthGuard } from 'src/common/passport/jwt-auth.guard';
 import { Chat } from './entities/chat.entity';
+import { GroupChat } from './entities/group-chat.entity';
 import { ImageUploadResource } from './resources/image-upload.response';
 // import { Languages } from 'src/common/constants';
 // import { AwsService } from '../aws/aws.service';
@@ -58,6 +59,74 @@ export class ChatController {
     private chatService: ChatService,
     // private awsService: AwsService,
   ) {}
+
+  /**
+   * Get Group Chat List
+   * @param authUser
+   * @returns
+   */
+  @ApiOperation({
+    summary: 'Group Chat List',
+  })
+  @Get('/group/list')
+  @ApiResponse(GET_RESPONSE_SUCCESS)
+  @HttpCode(HttpStatus.OK)
+  async getGroupChatList(@AuthUser() authUser: Users) {
+    const groups = await this.chatService.getGroupChatList(authUser);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Successfully fetched group chat list.',
+      data: plainToInstance(GroupChat, groups, {
+        enableImplicitConversion: true,
+        excludeExtraneousValues: true,
+      }),
+    };
+  }
+
+  /**
+   * Get Group Chat Messages
+   * @param authUser
+   * @param groupId
+   * @param limit
+   * @param page
+   * @returns
+   */
+  @ApiOperation({
+    summary: 'Group Chat Messages',
+  })
+  @Get('/group-messages/:groupId')
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiResponse(GET_RESPONSE_SUCCESS)
+  @HttpCode(HttpStatus.OK)
+  async getGroupChatMessages(
+    @AuthUser() authUser: Users,
+    @Param('groupId') groupId: number,
+    @Query('page') _page?: string,
+    @Query('limit') _limit?: string,
+  ) {
+    const page = Number(_page) || 1;
+    const limit = Number(_limit) || 20;
+
+    const [messages, total] = await this.chatService.getGroupChatMessages(
+      groupId,
+      page,
+      limit,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Successfully fetched group chat messages.',
+      data: messages,
+      meta: {
+        totalItems: total,
+        itemsPerPage: limit ? limit : total,
+        totalPages: limit ? Math.ceil(Number(total) / limit) : 1,
+        currentPage: page ? page : 1,
+      },
+    };
+  }
 
   /**
    * Chat list
@@ -129,44 +198,24 @@ export class ChatController {
   async uploadImage(
     @AuthUser() authUser: Users,
     @Body() imageUploadDto: ImageUploadDto,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
   ) {
     let data = '';
-    // files?.map(async (item: any) => {
-    //   if (item.fieldname === 'images') {
-    //     if (!imageFileFilter(item)) {
-    //       throw new BadRequestException(
-    //         i18n.t('exception.BAD_REQUEST.ONLY_IMAGES_ALLOWED'),
-    //       );
-    //     }
-    //   }
-    //   data.push(uploadFile('chat', item));
-    // });
 
     if (file) {
-      if (file.fieldname === 'image') {
-        if (!imageFileFilter(file)) {
-          throw new BadRequestException(
-            'Erroer',
-          );
-        }
+      if (!imageFileFilter(file)) {
+        throw new BadRequestException(
+          'Only image files are allowed! Ex. jpg, jpeg, png, gif',
+        );
       }
 
-      // data = uploadFile('chat', file);
-      // data = await this.awsService.uploadToS3(
-      //   file,
-      //   getS3BucketPath(authUser, `chats/${imageUploadDto.chatId}`),
-      //   convertMimeType(file),
-      // );
+      data = uploadFile('chat', file);
     }
 
     return {
       statusCode: HttpStatus.CREATED,
       message: 'Image uploaded successfully.',
-      data: plainToInstance(ImageUploadResource, data, {
-        enableImplicitConversion: true,
-        excludeExtraneousValues: true,
-      }),
+      data: castToStorage(data),
     };
   }
 

@@ -69,6 +69,31 @@ export class ChatGateway {
   @SubscribeMessage('join room')
   async joinRoom(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
     socket.join(socket['userId']);
+    socket.join(socket['userId']);
+  }
+
+  // Join Group
+  @SubscribeMessage('join group')
+  async joinGroup(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
+    socket.join(`group_${data.groupId}`);
+  }
+
+  // Group Message
+  @SubscribeMessage('group message')
+  async handleGroupMessage(@MessageBody() data: any) {
+    const message = await this.chatService.storeGroupChat(data);
+    if (
+      data.messageType === MessageTypes.IMAGE ||
+      data.messageType === MessageTypes.STICKER
+    ) {
+      data.message = isUrlValid(data.message)
+        ? data.message
+        : castToStorage(data.message);
+    }
+    this.server.to(`group_${data.groupId}`).emit('group message', {
+      ...message,
+      message: data.message,
+    });
   }
 
   // Status online
@@ -130,14 +155,10 @@ export class ChatGateway {
 
     const storeChat = await this.chatService.storeChat(data);
 
-    if (data.messageType === MessageTypes.IMAGE) {
-      // const images = [];
-
-      // data.message.map(async (image: any) => {
-      //   images.push((isUrlValid(image) ? image : castToStorage(image)));
-      // });
-      // data.message = images;
-
+    if (
+      data.messageType === MessageTypes.IMAGE ||
+      data.messageType === MessageTypes.STICKER
+    ) {
       data.message = isUrlValid(data.message)
         ? data.message
         : castToStorage(data.message);

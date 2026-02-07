@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   comparePassword,
@@ -16,6 +16,8 @@ import { UpdateProfileDto } from './dtos/update-profile.dto';
 import { Users } from './entities/user.entity';
 import { ApproveOrRejectDto } from './dtos/approve-or-reject.dto';
 import { RejectedUser } from './entities/rejected-user.entity';
+import { GetUserListDto } from './dtos/get-user-list.dto';
+import { ChatService } from '../chat/chat.service';
 
 @Injectable()
 export class UsersService {
@@ -24,6 +26,8 @@ export class UsersService {
     private readonly userRepository: Repository<Users>,
     @InjectRepository(RejectedUser)
     private readonly rejectedUserRepository: Repository<RejectedUser>,
+    @Inject(forwardRef(() => ChatService))
+    private readonly chatService: ChatService,
   ) {}
 
   /**
@@ -137,7 +141,9 @@ export class UsersService {
       const user: Users = await this.userRepository.save(data);
       userId = user.id;
     }
-    return await this.findById(userId);
+    const savedUser = await this.findById(userId);
+    await this.chatService.addUserToGenderGroup(savedUser);
+    return savedUser;
   }
 
   /**
@@ -194,13 +200,13 @@ export class UsersService {
    * @returns
    */
   async getUsers(
-    search: string,
-    page: number,
-    limit: number,
+    query: GetUserListDto,
     authUser: Users,
   ) {
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit);
     const skip = (page - 1) * limit;
-    search = String(search).trim().toLowerCase();
+    const search = query.search ? String(query.search).trim().toLowerCase() : '';
 
     const queryBuilder = this.userRepository
       .createQueryBuilder('u')
@@ -214,8 +220,7 @@ export class UsersService {
         }),
       );
 
-    
-    if (search && search !== '' && search !== 'undefined') {
+    if (search) {
       queryBuilder.andWhere(
         new Brackets((qb) => {
           qb.where('LOWER(u.name) LIKE :search', {
@@ -229,6 +234,18 @@ export class UsersService {
             });
         }),
       );
+    }
+
+    if (query.relationship) {
+      queryBuilder.andWhere('u.relationship = :relationship', {
+        relationship: query.relationship,
+      });
+    }
+
+    if (query.imlooking) {
+      queryBuilder.andWhere('u.imlooking = :imlooking', {
+        imlooking: query.imlooking,
+      });
     }
 
     const total = await queryBuilder.getCount();

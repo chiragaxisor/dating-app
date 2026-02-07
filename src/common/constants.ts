@@ -52,6 +52,22 @@ export const DEFAULT_FIXED_VALUE = 2;
 export enum MessageTypes {
   TEXT = 'text',
   IMAGE = 'images',
+  STICKER = 'sticker',
 }
 
+export enum RelationshipType {
+  DATING = 'Dating',
+  CASUAL = 'Casual',
+  SERIOUS_RELATIONSHIP = 'Serious Relationship',
+  FRIENDSHIP = 'Friendship',
+}
+
+export enum ImLookingType {
+  YOUNGER_MEN = 'Younger Men',
+  BOYS_18_PLUS = 'Boys (18+)',
+  MEN_OF_ANY_AGE = 'Men of Any Age',
+  OLDER_WOMEN = 'Older Women',
+  WOMEN_OF_ANY_AGE = 'Women of Any Age',
+  MATURE_WOMEN_35_PLUS = 'Mature Women (35+)',
+}
 

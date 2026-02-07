@@ -41,6 +41,7 @@ import { UpdateProfileDto } from './dtos/update-profile.dto';
 import { Users } from './entities/user.entity';
 import { UsersService } from './users.service';
 import { ApproveOrRejectDto } from './dtos/approve-or-reject.dto';
+import { GetUserListDto } from './dtos/get-user-list.dto';
 
 @ApiTags('User')
 @Controller('api/v1/users')
@@ -75,29 +76,20 @@ export class UsersController {
     };
   }
   
+
+
   @Get('list')
   @ApiOperation({
     summary: 'Get all user list',
   })
-  @ApiQuery({ name: 'search', required: false })
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
   @HttpCode(HttpStatus.OK)
   @ApiResponse(USER_RESPONSE)
   @ApiResponse(UNAUTHORIZE_RESPONSE)
   async userlists(@AuthUser() authUser: Users,
-    @Query('search') search?: string,
-    @Query('page') _page?: string,
-    @Query('limit') _limit?: string,) {
-    // const user: Users = await this.usersService.getUsers(authUser.id);
-
-    const page = Number(_page) || 1;
-    const limit = Number(_limit);
+    @Query() query: GetUserListDto) {
 
     const [users, total] = await this.usersService.getUsers(
-      search,
-      page,
-      limit,
+      query,
       authUser,
     );
 
@@ -109,9 +101,9 @@ export class UsersController {
       }),
       meta: {
         totalItems: total,
-        itemsPerPage: limit ? limit : total,
-        totalPages: limit ? Math.ceil(Number(total) / limit) : 1,
-        currentPage: page ? page : 1,
+        itemsPerPage: query.limit || total,
+        totalPages: query.limit ? Math.ceil(Number(total) / query.limit) : 1,
+        currentPage: query.page || 1,
       },
     };
   }
