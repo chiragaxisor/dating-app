@@ -41,45 +41,44 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  if (process.env.ENVIRONMENT !== 'production') {
-    /**
-     * Swagger Documentation
-     */
-    app.use(
-      ['/api/documentation'],
-      basicAuth({
-        challenge: true,
-        users: {
-          datingApp: '#$DatingApp:&$00',
-        },
-      }),
-    );
-
-    const config = new DocumentBuilder()
-      .setTitle(configService.get<string>('APP_NAME') || 'App Name')
-      .setDescription(
-        `APIs for ${
-          configService.get<string>('APP_NAME') || 'App Name'
-        } native app.`,
-      )
-      .addServer(process.env.APP_URL)
-      .setVersion(process.env.API_VERSION)
-      // .addApiKey({
-      //   type: 'apiKey',
-      //   name: 'Api-Key',
-      //   in: 'header',
-      //   description: 'API Key',
-      // })
-      .addBearerAuth()
-      .build();
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api/documentation', app, document, {
-      swaggerOptions: {
-        persistAuthorization: true,
+  /**
+   * Swagger Documentation
+   */
+  app.use(
+    ['/api/documentation'],
+    basicAuth({
+      challenge: true,
+      users: {
+        datingApp: '#$DatingApp:&$00',
       },
-    });
-  }
+    }),
+  );
 
+  const config = new DocumentBuilder()
+    .setTitle(configService.get<string>('APP_NAME') || 'Dating App API')
+    .setDescription(
+      `APIs for ${
+        configService.get<string>('APP_NAME') || 'Dating App'
+      } native app.`,
+    )
+    .addServer(process.env.APP_URL)
+    .setVersion(process.env.API_VERSION || '1.0.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/documentation', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
+
+  try {
+    firebaseAdmin.initializeApp({
+      credential: firebaseAdmin.credential.applicationDefault(),
+    });
+  } catch (error) {
+    console.error('Firebase Admin initialization failed:', error.message);
+  }
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.useStaticAssets(join(__dirname, '..', 'src/views'));
   app.setBaseViewsDir(join(__dirname, '..', 'src/views'));
@@ -91,9 +90,6 @@ async function bootstrap() {
     }),
   );
 
-  // const { httpAdapter } = app.get(HttpAdapterHost);
-  // app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
-
   app.useWebSocketAdapter(
     new SocketAdapter(
       app,
@@ -103,15 +99,14 @@ async function bootstrap() {
     ),
   );
 
-
-  const allowedOrigins = process.env.CORS_DOMAINS || '';
-
+  const allowedOrigins = configService.get<string>('CORS_DOMAINS') || '';
   const allowedOriginsArray = allowedOrigins
     .split(',')
-    .map((item) => item.trim());
+    .map((item) => item.trim())
+    .filter((item) => item !== '');
 
   app.enableCors({
-    origin: allowedOriginsArray,
+    origin: allowedOriginsArray.length > 0 ? allowedOriginsArray : '*',
     methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
     credentials: true,
   });
@@ -119,16 +114,11 @@ async function bootstrap() {
   // Session
   app.use(
     session({
-      secret: configService.get('APP_KEY'),
+      secret: configService.get('APP_KEY') || 'secret',
       resave: false,
       saveUninitialized: true,
     }),
   );
-
-  firebaseAdmin.initializeApp({
-    credential: firebaseAdmin.credential.applicationDefault(),
-  });
-
   await app.listen(configService.get('PORT', 3000), () => {
     console.log(`Application started on: ${configService.get('APP_URL')}`);
   });
