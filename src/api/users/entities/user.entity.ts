@@ -87,6 +87,20 @@ export class Users {
   })
   gender: Gender;
 
+  @Column({ nullable: true, default: 0 })
+  @Expose()
+  @Transform(({ value }) => (value ? Number(value) : 0))
+  coins: number;
+
+  @Column({ type: 'tinyint', default: 0 })
+  @Expose()
+  isSubscribed: boolean;
+
+  @Column({ type: 'timestamp', nullable: true })
+  @Expose()
+  @Transform(({ value }) => dateToTimestamp(value))
+  subscriptionExpiry: Date;
+
   @Column({ nullable: true, default: null })
   @Expose()
   @Transform(({ value }) => (isUrlValid(value) ? value : castToStorage(value)))

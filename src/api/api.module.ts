@@ -7,9 +7,10 @@ import { AppVersionsModule } from './app-versions/app-versions.module';
 import { ChatModule } from './chat/chat.module';
 
 import { StickersModule } from './stickers/stickers.module';
+import { WebhooksModule } from './webhooks/webhooks.module';
 
 @Module({
-  imports: [AuthModule, DeviceTokenModule, AppVersionsModule, ChatModule, StickersModule],
+  imports: [AuthModule, DeviceTokenModule, AppVersionsModule, ChatModule, StickersModule, WebhooksModule],
   controllers: [ApiController],
   providers: [ApiService],
   exports: [ApiService],

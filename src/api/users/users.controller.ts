@@ -42,6 +42,10 @@ import { Users } from './entities/user.entity';
 import { UsersService } from './users.service';
 import { ApproveOrRejectDto } from './dtos/approve-or-reject.dto';
 import { GetUserListDto } from './dtos/get-user-list.dto';
+import { PurchaseCoinsDto } from './dtos/purchase-coins.dto';
+import { UpdateSubscriptionDto } from './dtos/update-subscription.dto';
+import { CoinHistory } from './entities/coin-history.entity';
+import { StorePurchase } from './entities/store-purchase.entity';
 
 @ApiTags('User')
 @Controller('api/v1/users')
@@ -244,4 +248,101 @@ export class UsersController {
   //     }),
   //   };
   // }
+  /**
+   * Purchase coins via In-App Purchase
+   * @param authUser 
+   * @param purchaseCoinsDto 
+   * @returns 
+   */
+  @Post('purchase-coins')
+  @ApiOperation({
+    summary: 'Purchase coins via In-App Purchase',
+    description: `Product IDs: com.dating.coins50, com.dating.coins25`,
+  })
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse(GET_RESPONSE_SUCCESS)
+  @ApiResponse(BAD_REQUEST_RESPONSE)
+  async purchaseCoins(
+    @AuthUser() authUser: Users,
+    @Body() purchaseCoinsDto: PurchaseCoinsDto,
+  ) {
+    return await this.usersService.purchaseCoins(purchaseCoinsDto, authUser);
+  }
+
+  /**
+   * Get user coin transaction history
+   * @param authUser 
+   * @returns 
+   */
+  @Get('coin-history')
+  @ApiOperation({
+    summary: 'Get user coin transaction history',
+  })
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse(GET_RESPONSE_SUCCESS)
+  async getCoinHistory(@AuthUser() authUser: Users) {
+    const history = await this.usersService.getCoinHistory(authUser);
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Success',
+      data: plainToInstance(CoinHistory, history, {
+        enableImplicitConversion: true,
+        excludeExtraneousValues: true,
+      }),
+    };
+  }
+  @Post('toggle-subscription')
+  @ApiOperation({
+    summary: 'Toggle Subscription (Simulate iOS subscription purchase)',
+  })
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse(GET_RESPONSE_SUCCESS)
+  async toggleSubscription(
+    @AuthUser() authUser: Users,
+    @Body('isSubscribed') isSubscribed: boolean,
+  ) {
+    return await this.usersService.toggleSubscription(authUser, isSubscribed);
+  }
+
+  /**
+   * Update subscription from store
+   * @param authUser 
+   * @param updateSubscriptionDto 
+   * @returns 
+   */
+  @Post('update-subscription')
+  @ApiOperation({
+    summary: 'Update subscription from App Store/Google Play',
+  })
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse(GET_RESPONSE_SUCCESS)
+  async updateSubscription(
+    @AuthUser() authUser: Users,
+    @Body() updateSubscriptionDto: UpdateSubscriptionDto,
+  ) {
+    return await this.usersService.updateSubscription(updateSubscriptionDto, authUser);
+  }
+
+  /**
+   * Get store purchase history
+   * @param authUser 
+   * @returns 
+   */
+  @Get('purchase-history')
+  @ApiOperation({
+    summary: 'Get store purchase history (IAP & Subscriptions)',
+  })
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse(GET_RESPONSE_SUCCESS)
+  async getPurchaseHistory(@AuthUser() authUser: Users) {
+    const history = await this.usersService.getPurchaseHistory(authUser);
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Success',
+      data: plainToInstance(StorePurchase, history, {
+        enableImplicitConversion: true,
+        excludeExtraneousValues: true,
+      }),
+    };
+  }
 }

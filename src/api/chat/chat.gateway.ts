@@ -82,6 +82,11 @@ export class ChatGateway {
   @SubscribeMessage('group message')
   async handleGroupMessage(@MessageBody() data: any) {
     const message = await this.chatService.storeGroupChat(data);
+    
+    // Deduct coin if sticker is sent
+    if (data.messageType === MessageTypes.STICKER) {
+      await this.chatService.spendCoinForSticker(data.senderId);
+    }
     if (
       data.messageType === MessageTypes.IMAGE ||
       data.messageType === MessageTypes.STICKER
@@ -154,6 +159,11 @@ export class ChatGateway {
     // );
 
     const storeChat = await this.chatService.storeChat(data);
+
+    // Deduct coin if sticker is sent
+    if (data.messageType === MessageTypes.STICKER) {
+      await this.chatService.spendCoinForSticker(data.senderId);
+    }
 
     if (
       data.messageType === MessageTypes.IMAGE ||

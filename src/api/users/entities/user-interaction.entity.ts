@@ -1,7 +1,5 @@
-import { Expose, Transform, Type } from 'class-transformer';
-import { Gender } from 'src/common/constants';
-import { dateToTimestamp, isUrlValid } from 'src/common/helper/common.helper';
-import { castToStorage } from 'src/common/helper/fileupload.helper';
+import { Expose, Transform } from 'class-transformer';
+import { dateToTimestamp } from 'src/common/helper/common.helper';
 import {
   Column,
   CreateDateColumn,
@@ -12,11 +10,13 @@ import {
 } from 'typeorm';
 import { Users } from './user.entity';
 
+export enum InteractionType {
+  APPROVE = 'approve',
+  REJECT = 'reject',
+}
 
 @Entity()
-export class RejectedUser {
-  public jti?: string;
-
+export class UserInteraction {
   @PrimaryGeneratedColumn({
     type: 'bigint',
   })
@@ -34,7 +34,14 @@ export class RejectedUser {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  rejectedBy!: Users;
+  actionBy!: Users;
+
+  @Column({
+    type: 'enum',
+    enum: InteractionType,
+  })
+  @Expose()
+  actionType: InteractionType;
 
   @CreateDateColumn()
   @Expose()

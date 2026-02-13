@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chat } from './entities/chat.entity';
 import { Brackets, Not, Repository } from 'typeorm';
@@ -16,6 +16,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { GroupChat } from './entities/group-chat.entity';
 import { GroupChatMember } from './entities/group-chat-member.entity';
 import { GroupChatMessage } from './entities/group-chat-message.entity';
+import { UsersService } from '../users/users.service';
 
 
 @Injectable()
@@ -35,6 +36,8 @@ export class ChatService {
     private readonly groupChatMemberRepository: Repository<GroupChatMember>,
     @InjectRepository(GroupChatMessage)
     private readonly groupChatMessageRepository: Repository<GroupChatMessage>,
+    @Inject(forwardRef(() => UsersService))
+    private readonly usersService: UsersService,
   ) {}
 
   /**
@@ -225,15 +228,30 @@ export class ChatService {
       }),
     );
 
-    data.sort(function (a: any, b: any) {
+    // Deduplicate chats to ensure only one entry per user pair
+    const uniqueChatsMap = new Map();
+    data.forEach((item) => {
+      const otherUserId = item.receiverUser.id;
+      if (!uniqueChatsMap.has(otherUserId)) {
+        uniqueChatsMap.set(otherUserId, item);
+      } else {
+        const existing = uniqueChatsMap.get(otherUserId);
+        if (item.lastMessageAt > existing.lastMessageAt) {
+          uniqueChatsMap.set(otherUserId, item);
+        }
+      }
+    });
+
+    const dedupedData = Array.from(uniqueChatsMap.values());
+
+    dedupedData.sort(function (a: any, b: any) {
       return (
         new Date(b.lastMessageAt).valueOf() -
         new Date(a.lastMessageAt).valueOf()
       );
     });
-    // data.sort((a, b) => b.unReadMessageCount - a.unReadMessageCount);
 
-    return [data, total];
+    return [dedupedData, dedupedData.length];
   }
 
   /**
@@ -721,5 +739,13 @@ export class ChatService {
         messageType: payload.messageType,
       }),
     );
+  }
+
+  /**
+   * Spend coin for sticker (delegate to UsersService)
+   * @param userId 
+   */
+  async spendCoinForSticker(userId: number) {
+    await this.usersService.spendCoinForSticker(userId);
   }
 }
