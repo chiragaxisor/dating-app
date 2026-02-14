@@ -184,24 +184,24 @@ export class UsersController {
    * @param changePasswordDto
    * @returns
    */
-  // @Post('change-password')
-  // @ApiOperation({
-  //   summary: 'Change password',
-  // })
-  // @HttpCode(HttpStatus.OK)
-  // @ApiResponse(CHANGE_PASSWORD_RESPONSE)
-  // @ApiResponse(BAD_REQUEST_RESPONSE)
-  // async changePassword(
-  //   @AuthUser() authUser: Users,
-  //   @Body() changePasswordDto: ChangePasswordDto,
-  // ) {
-  //   await this.usersService.changePassword(changePasswordDto, authUser);
+  @Post('change-password')
+  @ApiOperation({
+    summary: 'Change password',
+  })
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse(CHANGE_PASSWORD_RESPONSE)
+  @ApiResponse(BAD_REQUEST_RESPONSE)
+  async changePassword(
+    @AuthUser() authUser: Users,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    await this.usersService.changePassword(changePasswordDto, authUser);
 
-  //   return {
-  //     statusCode: HttpStatus.CREATED,
-  //     message: 'Password successfully changed',
-  //   };
-  // }
+    return {
+      statusCode: HttpStatus.CREATED,
+      message: 'Password successfully changed',
+    };
+  }
 
   /**
    * Delete user
