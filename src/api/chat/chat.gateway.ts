@@ -182,12 +182,12 @@ export class ChatGateway {
     });
 
     const user =
-      data.senderId === chatDetails.sender.id
+      Number(data.senderId) === Number(chatDetails.sender.id)
         ? chatDetails.receiver
         : chatDetails.sender;
 
     const fromUser =
-      data.senderId === chatDetails.sender.id
+      Number(data.senderId) === Number(chatDetails.sender.id)
         ? chatDetails.sender
         : chatDetails.receiver;
 
@@ -447,7 +447,7 @@ export class ChatGateway {
   // Active Users
   @SubscribeMessage('active users')
   async handleActiveUsers(@MessageBody() data: any) {
-    data.authUserId = '7';
+    // data.authUserId = '7';
     const chatList = await this.chatRepository
       .createQueryBuilder('chat')
       .leftJoinAndSelect('chat.sender', 'sender')

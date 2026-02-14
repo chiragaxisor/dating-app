@@ -120,10 +120,10 @@ let ChatGateway = class ChatGateway {
             },
             relations: ['sender', 'receiver'],
         });
-        const user = data.senderId === chatDetails.sender.id
+        const user = Number(data.senderId) === Number(chatDetails.sender.id)
             ? chatDetails.receiver
             : chatDetails.sender;
-        const fromUser = data.senderId === chatDetails.sender.id
+        const fromUser = Number(data.senderId) === Number(chatDetails.sender.id)
             ? chatDetails.sender
             : chatDetails.receiver;
         const deviceToken = await this.deviceTokenService.getTokensByUserID(user.id);
@@ -232,7 +232,6 @@ let ChatGateway = class ChatGateway {
         }
     }
     async handleActiveUsers(data) {
-        data.authUserId = '7';
         const chatList = await this.chatRepository
             .createQueryBuilder('chat')
             .leftJoinAndSelect('chat.sender', 'sender')
