@@ -23,6 +23,7 @@ import { PurchaseCoinsDto } from './dtos/purchase-coins.dto';
 import { UpdateSubscriptionDto } from './dtos/update-subscription.dto';
 import { GetUserListDto } from './dtos/get-user-list.dto';
 import { ChatService } from '../chat/chat.service';
+import { PurchaseVerificationService } from './purchase-verification.service';
 
 @Injectable()
 export class UsersService {
@@ -35,6 +36,7 @@ export class UsersService {
     private readonly coinHistoryRepository: Repository<CoinHistory>,
     @InjectRepository(StorePurchase)
     private readonly storePurchaseRepository: Repository<StorePurchase>,
+    private readonly purchaseVerificationService: PurchaseVerificationService,
     @Inject(forwardRef(() => ChatService))
     private readonly chatService: ChatService,
   ) {}
@@ -332,13 +334,20 @@ export class UsersService {
       throw new BadRequestException('Invalid Product ID');
     }
 
-    // SERVER-SIDE VALIDATION:
-    // For Android: Use googleapis or axios to call Google Play Developer API
-    // GET https://androidpublisher.googleapis.com/androidpublisher/v3/applications/{packageName}/purchases/products/{productId}/tokens/{token}
-    
-    // For iOS: Use axios to call App Store Verify Receipt API (or decode locally)
-    // POST https://buy.itunes.apple.com/verifyReceipt
-    
+    // SERVER-SIDE VALIDATION
+    let verificationResult: any;
+    if (purchaseCoinsDto.platform === 'android') {
+      verificationResult = await this.purchaseVerificationService.verifyGoogleProduct(
+        purchaseCoinsDto.packageName,
+        purchaseCoinsDto.productId,
+        purchaseCoinsDto.purchaseToken,
+      );
+    } else {
+      verificationResult = await this.purchaseVerificationService.verifyAppleReceipt(
+        purchaseCoinsDto.purchaseToken, // For Apple, token is usually the receipt string
+      );
+    }
+
     // Update user coins
     const user = await this.findById(authUser.id);
     user.coins = Number(user.coins || 0) + coinsToAdd;
@@ -466,6 +475,22 @@ export class UsersService {
       expiryDate = expiryDate.add(1, 'month');
     } else {
       throw new BadRequestException('Invalid Subscription Product ID');
+    }
+
+    // SERVER-SIDE VALIDATION
+    let verificationResult: any;
+    if (dto.platform === 'android') {
+      verificationResult = await this.purchaseVerificationService.verifyGoogleSubscription(
+        dto.packageName,
+        dto.subscriptionId,
+        dto.purchaseToken,
+      );
+      if (verificationResult.expiryDate) expiryDate = moment(verificationResult.expiryDate);
+    } else {
+      verificationResult = await this.purchaseVerificationService.verifyAppleReceipt(
+        dto.purchaseToken,
+      );
+      if (verificationResult.expiryDate) expiryDate = moment(verificationResult.expiryDate);
     }
 
     await this.userRepository.update(authUser.id, {

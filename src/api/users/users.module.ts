@@ -1,5 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { PurchaseVerificationService } from './purchase-verification.service';
 import { UsersController } from './users.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from './entities/user.entity';
@@ -18,6 +19,7 @@ import { ChatModule } from '../chat/chat.module';
   controllers: [UsersController],
   providers: [
     UsersService,
+    PurchaseVerificationService,
     // {
     //   provide: APP_GUARD,
     //   useClass: ApiKeyGuard,
