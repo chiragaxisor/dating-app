@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  </head>
+
+  <body
+    style="
+      background-color: #dd6b63;
+      margin: 0 !important;
+      padding: 0 !important;
+    "
+  >
+    <table width="100%">
+      <tbody>
+        <tr>
+          <td>
+            <table
+              width="100%"
+              style="width: 100%; max-width: 600px"
+              align="center"
+            >
+              <tbody>
+                <tr>
+                  <td
+                    style="
+                      padding: 0px 20px 0px 30px;
+                      color: #000000;
+                      text-align: left;
+                    "
+                    bgcolor="#ffffff"
+                    width="100%"
+                    align="left"
+                  >
+                    <table width="100%">
+                      <tbody>
+                        <tr>
+                          <td style="padding: 0px 0px 30px 0px"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table width="100%">
+                      <tbody>
+                        <tr>
+                          <td
+                            style="
+                              font-size: 6px;
+                              line-height: 10px;
+                              height: 100px;
+                              padding: 0px 0px 15px 0px;
+                            "
+                            align="left"
+                          >
+                            <img
+                              src="<%= `${process.env.APP_URL}/images/full-logo.png` %>"
+                              class="v1max-width"
+                              style="
+                                display: block;
+                                color: #000000;
+                                text-decoration: none;
+                                font-family: Roboto, sans-serif;
+                                font-size: 16px;
+                                height: 100px;
+                              "
+                              alt="Loosh"
+                            />
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table width="100%">
+                      <tbody>
+                        <tr>
+                          <td style="line-height: 39px" height="100%">
+                            <div>
+                              <h1
+                                style="
+                                  font-family: Roboto, sans-serif;
+                                  font-size: 30px;
+                                  padding-bottom: 0px;
+                                  margin-top: 10px;
+                                "
+                              >
+                                Contact Us<span style="color: #dd6b63">.</span>
+                              </h1>
+                              <div></div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table width="100%">
+                      <tbody>
+                        <tr>
+                          <td style="line-height: 16px" height="100%">
+                            <div>
+                              <div style="margin-bottom: 0px; font-size: 14px">
+                                <p>Hello,</p>
+                                <p>
+                                  <b>
+                                    <% if (contactUsDto.name) { %><%=
+                                    contactUsDto.name %> has requested for
+                                    contact.<% } %>
+                                  </b>
+                                </p>
+                                <table
+                                  width="100%"
+                                  style="
+                                    color: #5b5b5b;
+                                    border-collapse: collapse;
+                                    border: 1px solid #777777;
+                                  "
+                                >
+                                  <tbody>
+                                    <tr>
+                                      <td style="border: 1px solid #777777">
+                                        User mail
+                                      </td>
+                                      <td style="border: 1px solid #777777">
+                                        <%= user.email %>
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td style="border: 1px solid #777777">
+                                        User name
+                                      </td>
+                                      <td style="border: 1px solid #777777">
+                                        <%= contactUsDto.name %>
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td style="border: 1px solid #777777">
+                                        Contact mail
+                                      </td>
+                                      <td style="border: 1px solid #777777">
+                                        <%= contactUsDto.email %>
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td style="border: 1px solid #777777">
+                                        Message
+                                      </td>
+                                      <td style="border: 1px solid #777777">
+                                        <%= contactUsDto.message %>
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                                <div>
+                                  <p>Thank you!</p>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>

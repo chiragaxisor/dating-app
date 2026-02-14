@@ -1,0 +1,42 @@
+import { Strategy } from 'passport-jwt';
+import { ConfigService } from '@nestjs/config';
+import { UsersService } from 'src/api/users/users.service';
+import { AccessTokensService } from 'src/api/access-tokens/access-tokens.service';
+declare const JwtStrategy_base: new (...args: any[]) => Strategy;
+export declare class JwtStrategy extends JwtStrategy_base {
+    private usersService;
+    private accessTokensService;
+    constructor(configService: ConfigService, usersService: UsersService, accessTokensService: AccessTokensService);
+    validate(payload: any): Promise<{
+        jti: any;
+        id: number;
+        userUniqueId: string;
+        name: string;
+        email: string;
+        password: string;
+        address: string;
+        country: string;
+        city: string;
+        state: string;
+        gender: import("../constants").Gender;
+        coins: number;
+        isSubscribed: boolean;
+        subscriptionExpiry: Date;
+        profilePic: string;
+        isNotificationOn: boolean;
+        isOnline: boolean;
+        forgotPasswordCode: string;
+        forgotPasswordCodeExpiredAt: Date;
+        isBlocked: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        deletedAt: Date;
+        dateOfBirth: Date;
+        imlooking: string;
+        relationship: string;
+        about: string;
+        interested: string;
+        authentication: import("../../api/users/entities/user.entity").AuthTokenResource;
+    }>;
+}
+export {};

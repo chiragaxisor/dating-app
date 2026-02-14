@@ -1,0 +1,45 @@
+import { Chat } from './entities/chat.entity';
+import { Repository } from 'typeorm';
+import { ChatMessage } from './entities/chat-message.entity';
+import { Users } from '../users/entities/user.entity';
+import { ChatJoinDto } from './dto/chat-join.dto';
+import { MessageTypes } from 'src/common/constants';
+import { UserBlocks } from '../users/entities/user-blocks.entity';
+import { GroupChat } from './entities/group-chat.entity';
+import { GroupChatMember } from './entities/group-chat-member.entity';
+import { GroupChatMessage } from './entities/group-chat-message.entity';
+import { UsersService } from '../users/users.service';
+export declare class ChatService {
+    private chatRepository;
+    private chatMessageRepository;
+    private readonly usersRepository;
+    private readonly userBlocksRepository;
+    private readonly groupChatRepository;
+    private readonly groupChatMemberRepository;
+    private readonly groupChatMessageRepository;
+    private readonly usersService;
+    constructor(chatRepository: Repository<Chat>, chatMessageRepository: Repository<ChatMessage>, usersRepository: Repository<Users>, userBlocksRepository: Repository<UserBlocks>, groupChatRepository: Repository<GroupChat>, groupChatMemberRepository: Repository<GroupChatMember>, groupChatMessageRepository: Repository<GroupChatMessage>, usersService: UsersService);
+    chatList(authUser: Users, page: number, limit: number, search: string): Promise<(number | any[])[]>;
+    joinRoom(authUser: Users, joinChatDto: ChatJoinDto): Promise<{
+        receiverUser: Users;
+        lastMessage: string;
+        messageType: MessageTypes;
+        unReadMessageCount: number;
+        lastMessageAt: number;
+        id: number;
+        sender: Users;
+        receiver: Users;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    chatMessageList(chatId: number, authUser: Users, limit: number, page: number): Promise<(number | any[])[]>;
+    storeChat(payload: any): Promise<ChatMessage>;
+    getActiveUsers(authUser: Users, limit: number, page: number): Promise<any[]>;
+    clearChat(chatId: number, authUser: Users): Promise<void>;
+    deleteClearedChats(): Promise<void>;
+    addUserToGenderGroup(user: Users): Promise<void>;
+    getGroupChatList(authUser: Users): Promise<GroupChat[]>;
+    getGroupChatMessages(groupId: number, page: number, limit: number): Promise<(number | GroupChatMessage[])[]>;
+    storeGroupChat(payload: any): Promise<GroupChatMessage>;
+    spendCoinForSticker(userId: number): Promise<void>;
+}
