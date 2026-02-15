@@ -358,15 +358,15 @@ export class UsersService {
 
     const transactionId = verificationResult.transactionId || purchaseCoinsDto.transactionId;
 
-    // Duplicate transaction check - prevent double-processing
-    if (transactionId) {
-      const existingPurchase = await this.storePurchaseRepository.findOne({
-        where: { transactionId, purchaseType: PurchaseType.COIN },
-      });
-      if (existingPurchase) {
-        throw new BadRequestException('This transaction has already been processed');
-      }
+    // Duplicate transaction check - prevent double-processing (skip for empty/zero IDs)                    
+  if (transactionId && transactionId !== '0' && transactionId !== 0) {                                    
+    const existingPurchase = await this.storePurchaseRepository.findOne({                                 
+      where: { transactionId: String(transactionId), purchaseType: PurchaseType.COIN },                   
+    });                                                                                                   
+    if (existingPurchase) {                                                                               
+      throw new BadRequestException('This transaction has already been processed');
     }
+  }
 
     // Update user coins
     const user = await this.findById(authUser.id);
@@ -517,15 +517,15 @@ export class UsersService {
 
     const transactionId = verificationResult.transactionId || null;
 
-    // Duplicate transaction check - prevent double-processing
-    if (transactionId) {
-      const existingPurchase = await this.storePurchaseRepository.findOne({
-        where: { transactionId, purchaseType: PurchaseType.SUBSCRIPTION },
-      });
-      if (existingPurchase) {
-        throw new BadRequestException('This transaction has already been processed');
-      }
+    // Duplicate transaction check - prevent double-processing (skip for empty/zero IDs)
+  if (transactionId && transactionId !== '0' && transactionId !== 0) {
+    const existingPurchase = await this.storePurchaseRepository.findOne({
+      where: { transactionId: String(transactionId), purchaseType: PurchaseType.SUBSCRIPTION },
+    });
+    if (existingPurchase) {
+      throw new BadRequestException('This transaction has already been processed');
     }
+  }
 
     // Determine expiry date: prefer store-verified expiry, fallback to calculated
     let expiryDate: moment.Moment;

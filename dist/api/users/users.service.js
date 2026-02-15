@@ -208,9 +208,9 @@ let UsersService = class UsersService {
             }
         }
         const transactionId = verificationResult.transactionId || purchaseCoinsDto.transactionId;
-        if (transactionId) {
+        if (transactionId && transactionId !== '0' && transactionId !== 0) {
             const existingPurchase = await this.storePurchaseRepository.findOne({
-                where: { transactionId, purchaseType: store_purchase_entity_1.PurchaseType.COIN },
+                where: { transactionId: String(transactionId), purchaseType: store_purchase_entity_1.PurchaseType.COIN },
             });
             if (existingPurchase) {
                 throw new common_1.BadRequestException('This transaction has already been processed');
@@ -309,9 +309,9 @@ let UsersService = class UsersService {
             }
         }
         const transactionId = verificationResult.transactionId || null;
-        if (transactionId) {
+        if (transactionId && transactionId !== '0' && transactionId !== 0) {
             const existingPurchase = await this.storePurchaseRepository.findOne({
-                where: { transactionId, purchaseType: store_purchase_entity_1.PurchaseType.SUBSCRIPTION },
+                where: { transactionId: String(transactionId), purchaseType: store_purchase_entity_1.PurchaseType.SUBSCRIPTION },
             });
             if (existingPurchase) {
                 throw new common_1.BadRequestException('This transaction has already been processed');
