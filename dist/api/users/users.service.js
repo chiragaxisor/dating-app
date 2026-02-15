@@ -200,6 +200,21 @@ let UsersService = class UsersService {
         }
         else {
             verificationResult = await this.purchaseVerificationService.verifyAppleReceipt(purchaseCoinsDto.purchaseToken);
+            if (verificationResult.bundleId && verificationResult.bundleId !== 'com.dattingapp.mobile.app') {
+                throw new common_1.BadRequestException('Invalid bundle ID');
+            }
+            if (verificationResult.productId && verificationResult.productId !== purchaseCoinsDto.productId) {
+                throw new common_1.BadRequestException('Product ID mismatch');
+            }
+        }
+        const transactionId = verificationResult.transactionId || purchaseCoinsDto.transactionId;
+        if (transactionId) {
+            const existingPurchase = await this.storePurchaseRepository.findOne({
+                where: { transactionId, purchaseType: store_purchase_entity_1.PurchaseType.COIN },
+            });
+            if (existingPurchase) {
+                throw new common_1.BadRequestException('This transaction has already been processed');
+            }
         }
         const user = await this.findById(authUser.id);
         user.coins = Number(user.coins || 0) + coinsToAdd;
@@ -209,15 +224,15 @@ let UsersService = class UsersService {
             coins: coinsToAdd,
             type: coin_history_entity_1.TransactionType.PURCHASE,
             productId: purchaseCoinsDto.productId,
-            transactionId: purchaseCoinsDto.transactionId,
-            description: `Purchased ${coinsToAdd} coins via ${purchaseCoinsDto.platform}. Package: ${purchaseCoinsDto.packageName || 'N/A'}. Token: ${purchaseCoinsDto.purchaseToken || 'N/A'}`,
+            transactionId: transactionId,
+            description: `Purchased ${coinsToAdd} coins via ${purchaseCoinsDto.platform}. Product: ${purchaseCoinsDto.productId}`,
         });
         await this.storePurchaseRepository.save({
             user: user,
             productId: purchaseCoinsDto.productId,
             purchaseType: store_purchase_entity_1.PurchaseType.COIN,
             platform: purchaseCoinsDto.platform,
-            transactionId: purchaseCoinsDto.transactionId,
+            transactionId: transactionId,
             purchaseToken: purchaseCoinsDto.purchaseToken,
             packageName: purchaseCoinsDto.packageName,
             status: store_purchase_entity_1.PurchaseStatus.COMPLETED,
@@ -277,29 +292,43 @@ let UsersService = class UsersService {
         };
     }
     async updateSubscription(dto, authUser) {
-        let expiryDate = moment();
-        if (dto.subscriptionId === 'isr_199_1y') {
-            expiryDate = expiryDate.add(1, 'year');
-        }
-        else if (dto.subscriptionId === 'sir_19_1m') {
-            expiryDate = expiryDate.add(1, 'month');
-        }
-        else {
+        if (dto.subscriptionId !== 'isr_199_1y' && dto.subscriptionId !== 'sir_19_1m') {
             throw new common_1.BadRequestException('Invalid Subscription Product ID');
         }
         let verificationResult;
         if (dto.platform === 'android') {
             verificationResult = await this.purchaseVerificationService.verifyGoogleSubscription(dto.packageName, dto.subscriptionId, dto.purchaseToken);
-            if (verificationResult.expiryDate)
-                expiryDate = moment(verificationResult.expiryDate);
         }
         else {
             verificationResult = await this.purchaseVerificationService.verifyAppleReceipt(dto.purchaseToken);
-            if (verificationResult.expiryDate)
-                expiryDate = moment(verificationResult.expiryDate);
+            if (verificationResult.bundleId && verificationResult.bundleId !== 'com.dattingapp.mobile.app') {
+                throw new common_1.BadRequestException('Invalid bundle ID');
+            }
+            if (verificationResult.productId && verificationResult.productId !== dto.subscriptionId) {
+                throw new common_1.BadRequestException('Product ID mismatch');
+            }
         }
+        const transactionId = verificationResult.transactionId || null;
+        if (transactionId) {
+            const existingPurchase = await this.storePurchaseRepository.findOne({
+                where: { transactionId, purchaseType: store_purchase_entity_1.PurchaseType.SUBSCRIPTION },
+            });
+            if (existingPurchase) {
+                throw new common_1.BadRequestException('This transaction has already been processed');
+            }
+        }
+        let expiryDate;
+        if (verificationResult.expiryDate) {
+            expiryDate = moment(verificationResult.expiryDate);
+        }
+        else {
+            expiryDate = dto.subscriptionId === 'isr_199_1y'
+                ? moment().add(1, 'year')
+                : moment().add(1, 'month');
+        }
+        const isActuallyActive = expiryDate.isAfter(moment());
         await this.userRepository.update(authUser.id, {
-            isSubscribed: true,
+            isSubscribed: isActuallyActive,
             subscriptionExpiry: expiryDate.toDate(),
         });
         await this.storePurchaseRepository.save({
@@ -307,9 +336,10 @@ let UsersService = class UsersService {
             productId: dto.subscriptionId,
             purchaseType: store_purchase_entity_1.PurchaseType.SUBSCRIPTION,
             platform: dto.platform,
+            transactionId: transactionId,
             purchaseToken: dto.purchaseToken,
             packageName: dto.packageName,
-            status: store_purchase_entity_1.PurchaseStatus.ACTIVE,
+            status: isActuallyActive ? store_purchase_entity_1.PurchaseStatus.ACTIVE : store_purchase_entity_1.PurchaseStatus.EXPIRED,
             expiryDate: expiryDate.toDate(),
         });
         return {

@@ -10,6 +10,7 @@ import { join } from 'path';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './common/all-exceptions.filter';
 import * as session from 'express-session';
+import { json, urlencoded } from 'express';
 import { SocketAdapter } from './api/chat/socket.adapter';
 import { JwtService } from '@nestjs/jwt';
 import { AccessTokensService } from './api/access-tokens/access-tokens.service';
@@ -40,6 +41,9 @@ async function bootstrap() {
     : await NestFactory.create<NestExpressApplication>(AppModule);
 
   const configService = app.get(ConfigService);
+
+  app.use(json({ limit: '10mb' }));
+  app.use(urlencoded({ limit: '10mb', extended: true }));
 
   /**
    * Swagger Documentation

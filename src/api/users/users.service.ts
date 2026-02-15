@@ -344,8 +344,28 @@ export class UsersService {
       );
     } else {
       verificationResult = await this.purchaseVerificationService.verifyAppleReceipt(
-        purchaseCoinsDto.purchaseToken, // For Apple, token is usually the receipt string
+        purchaseCoinsDto.purchaseToken,
       );
+
+      // Extra safety for StoreKit 2 JWS
+      if (verificationResult.bundleId && verificationResult.bundleId !== 'com.dattingapp.mobile.app') {
+        throw new BadRequestException('Invalid bundle ID');
+      }
+      if (verificationResult.productId && verificationResult.productId !== purchaseCoinsDto.productId) {
+        throw new BadRequestException('Product ID mismatch');
+      }
+    }
+
+    const transactionId = verificationResult.transactionId || purchaseCoinsDto.transactionId;
+
+    // Duplicate transaction check - prevent double-processing
+    if (transactionId) {
+      const existingPurchase = await this.storePurchaseRepository.findOne({
+        where: { transactionId, purchaseType: PurchaseType.COIN },
+      });
+      if (existingPurchase) {
+        throw new BadRequestException('This transaction has already been processed');
+      }
     }
 
     // Update user coins
@@ -359,8 +379,8 @@ export class UsersService {
       coins: coinsToAdd,
       type: TransactionType.PURCHASE,
       productId: purchaseCoinsDto.productId,
-      transactionId: purchaseCoinsDto.transactionId,
-      description: `Purchased ${coinsToAdd} coins via ${purchaseCoinsDto.platform}. Package: ${purchaseCoinsDto.packageName || 'N/A'}. Token: ${purchaseCoinsDto.purchaseToken || 'N/A'}`,
+      transactionId: transactionId,
+      description: `Purchased ${coinsToAdd} coins via ${purchaseCoinsDto.platform}. Product: ${purchaseCoinsDto.productId}`,
     });
 
     // Save to Store Purchase History
@@ -369,7 +389,7 @@ export class UsersService {
       productId: purchaseCoinsDto.productId,
       purchaseType: PurchaseType.COIN,
       platform: purchaseCoinsDto.platform as PlatformType,
-      transactionId: purchaseCoinsDto.transactionId,
+      transactionId: transactionId,
       purchaseToken: purchaseCoinsDto.purchaseToken,
       packageName: purchaseCoinsDto.packageName,
       status: PurchaseStatus.COMPLETED,
@@ -467,13 +487,8 @@ export class UsersService {
    * @param authUser 
    */
   async updateSubscription(dto: UpdateSubscriptionDto, authUser: Users) {
-    let expiryDate = moment();
-    
-    if (dto.subscriptionId === 'isr_199_1y') {
-      expiryDate = expiryDate.add(1, 'year');
-    } else if (dto.subscriptionId === 'sir_19_1m') {
-      expiryDate = expiryDate.add(1, 'month');
-    } else {
+    // Validate product ID
+    if (dto.subscriptionId !== 'isr_199_1y' && dto.subscriptionId !== 'sir_19_1m') {
       throw new BadRequestException('Invalid Subscription Product ID');
     }
 
@@ -485,16 +500,48 @@ export class UsersService {
         dto.subscriptionId,
         dto.purchaseToken,
       );
-      if (verificationResult.expiryDate) expiryDate = moment(verificationResult.expiryDate);
     } else {
       verificationResult = await this.purchaseVerificationService.verifyAppleReceipt(
         dto.purchaseToken,
       );
-      if (verificationResult.expiryDate) expiryDate = moment(verificationResult.expiryDate);
+
+      // Validate bundle ID (works for both Legacy and StoreKit 2)
+      if (verificationResult.bundleId && verificationResult.bundleId !== 'com.dattingapp.mobile.app') {
+        throw new BadRequestException('Invalid bundle ID');
+      }
+      // Validate product ID (works for both Legacy and StoreKit 2)
+      if (verificationResult.productId && verificationResult.productId !== dto.subscriptionId) {
+        throw new BadRequestException('Product ID mismatch');
+      }
     }
 
+    const transactionId = verificationResult.transactionId || null;
+
+    // Duplicate transaction check - prevent double-processing
+    if (transactionId) {
+      const existingPurchase = await this.storePurchaseRepository.findOne({
+        where: { transactionId, purchaseType: PurchaseType.SUBSCRIPTION },
+      });
+      if (existingPurchase) {
+        throw new BadRequestException('This transaction has already been processed');
+      }
+    }
+
+    // Determine expiry date: prefer store-verified expiry, fallback to calculated
+    let expiryDate: moment.Moment;
+    if (verificationResult.expiryDate) {
+      expiryDate = moment(verificationResult.expiryDate);
+    } else {
+      // Fallback only if store didn't return an expiry
+      expiryDate = dto.subscriptionId === 'isr_199_1y'
+        ? moment().add(1, 'year')
+        : moment().add(1, 'month');
+    }
+
+    const isActuallyActive = expiryDate.isAfter(moment());
+
     await this.userRepository.update(authUser.id, {
-      isSubscribed: true,
+      isSubscribed: isActuallyActive,
       subscriptionExpiry: expiryDate.toDate(),
     });
 
@@ -504,9 +551,10 @@ export class UsersService {
       productId: dto.subscriptionId,
       purchaseType: PurchaseType.SUBSCRIPTION,
       platform: dto.platform as PlatformType,
+      transactionId: transactionId,
       purchaseToken: dto.purchaseToken,
       packageName: dto.packageName,
-      status: PurchaseStatus.ACTIVE,
+      status: isActuallyActive ? PurchaseStatus.ACTIVE : PurchaseStatus.EXPIRED,
       expiryDate: expiryDate.toDate(),
     });
 

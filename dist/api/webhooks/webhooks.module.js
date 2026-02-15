@@ -8,15 +8,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WebhooksModule = void 0;
 const common_1 = require("@nestjs/common");
+const typeorm_1 = require("@nestjs/typeorm");
 const webhooks_controller_1 = require("./webhooks.controller");
 const webhooks_service_1 = require("./webhooks.service");
 const users_module_1 = require("../users/users.module");
+const user_entity_1 = require("../users/entities/user.entity");
+const store_purchase_entity_1 = require("../users/entities/store-purchase.entity");
 let WebhooksModule = class WebhooksModule {
 };
 exports.WebhooksModule = WebhooksModule;
 exports.WebhooksModule = WebhooksModule = __decorate([
     (0, common_1.Module)({
-        imports: [users_module_1.UsersModule],
+        imports: [
+            users_module_1.UsersModule,
+            typeorm_1.TypeOrmModule.forFeature([user_entity_1.Users, store_purchase_entity_1.StorePurchase]),
+        ],
         controllers: [webhooks_controller_1.WebhooksController],
         providers: [webhooks_service_1.WebhooksService],
     })

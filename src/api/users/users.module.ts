@@ -25,6 +25,6 @@ import { ChatModule } from '../chat/chat.module';
     //   useClass: ApiKeyGuard,
     // },
   ],
-  exports: [UsersService],
+  exports: [UsersService, PurchaseVerificationService],
 })
 export class UsersModule {}

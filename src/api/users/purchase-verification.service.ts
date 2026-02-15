@@ -2,6 +2,36 @@ import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { google } from 'googleapis';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
+import { jwtVerify, importX509 } from 'jose';
+import * as crypto from 'crypto';
+
+export interface AppleTransactionPayload {
+  transactionId: string;
+  originalTransactionId: string;
+  productId: string;
+  purchaseDate: number;
+  expiresDate: number;
+  bundleId: string;
+  environment: string; // "Sandbox" | "Production"
+  type: string;
+}
+
+// Apple Root CA - G3 Certificate (downloaded from https://www.apple.com/certificateauthority/)
+const APPLE_ROOT_CA_G3_PEM = `-----BEGIN CERTIFICATE-----
+MIICQzCCAcmgAwIBAgIILcX8iNLFS5UwCgYIKoZIzj0EAwMwZzEbMBkGA1UEAwwS
+QXBwbGUgUm9vdCBDQSAtIEczMSYwJAYDVQQLDB1BcHBsZSBDZXJ0aWZpY2F0aW9u
+IEF1dGhvcml0eTETMBEGA1UECgwKQXBwbGUgSW5jLjELMAkGA1UEBhMCVVMwHhcN
+MTQwNDMwMTgxOTA2WhcNMzkwNDMwMTgxOTA2WjBnMRswGQYDVQQDDBJBcHBsZSBS
+b290IENBIC0gRzMxJjAkBgNVBAsMHUFwcGxlIENlcnRpZmljYXRpb24gQXV0aG9y
+aXR5MRMwEQYDVQQKDApBcHBsZSBJbmMuMQswCQYDVQQGEwJVUzB2MBAGByqGSM49
+AgEGBSuBBAAiA2IABJjpLz1AcqTtkyJygRMc3RCV8cWjTnHcFBbZDuWmBSp3ZHtf
+TjjTuxxEtX/1H7YyYl3J6YRbTzBPEVoA/VhYDKX1DyxNB0cTddqXl5dvMVztK517
+IDvYuVTZXpmkOlEKMaNCMEAwHQYDVR0OBBYEFLuw3qFYM4iapIqZ3r6966/ayySr
+MA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgEGMAoGCCqGSM49BAMDA2gA
+MGUCMQCD6cHEFl4aXTQY2e3v9GwOAEZLuN+yRhHFD/3meoyhpmvOwgPUnPWTxnS4
+at+qIxUCMG1mihDK1A3UT82NQz60imOlM27jbdoXt2QfyFMm+YhidDkLF1vLUagM
+6BgD56KyKA==
+-----END CERTIFICATE-----`;
 
 @Injectable()
 export class PurchaseVerificationService {
@@ -66,33 +96,152 @@ export class PurchaseVerificationService {
   }
 
   /**
-   * Verify Apple Receipt (Consumable & Subscription)
+   * Verify Apple Receipt (Legacy or StoreKit 2 JWS)
    */
   async verifyAppleReceipt(receiptData: string) {
+    // Detect if it's a JWS token (StoreKit 2) or a Legacy Receipt
+    // JWS tokens have 3 parts separated by dots (.)
+    if (receiptData.includes('.') && receiptData.split('.').length === 3) {
+      this.logger.log('JWS Token detected, using StoreKit 2 verification');
+      return await this.verifyAppleJWS(receiptData);
+    }
+
     try {
-      const sharedSecret = this.configService.get<string>('APPLE_SHARED_SECRET');
-      if (!sharedSecret) {
-        throw new BadRequestException('Apple Shared Secret is not configured in the server .env file.');
-      }
-      const isProduction = this.configService.get<string>('ENVIRONMENT') === 'production';
+      let sharedSecret = this.configService.get<string>('APPLE_SHARED_SECRET');
       
-      let response = await this.callAppleVerify(receiptData, sharedSecret, true); // Try Production
+      // Clean up common .env formatting issues (like literal quotes)
+      if (sharedSecret) {
+        sharedSecret = sharedSecret.replace(/^['"]|['"]$/g, '');
+      }
+
+      if (!sharedSecret || sharedSecret === '') {
+        throw new BadRequestException('Apple Shared Secret is not configured or is empty in the server .env file.');
+      }
+
+      // Sanitize legacy receipt data
+      const sanitizedReceipt = receiptData?.trim()
+        .replace(/\n|\r/g, '')
+        .replace(/ /g, '+') || '';
+      
+      if (!sanitizedReceipt) {
+        throw new BadRequestException('Apple receipt data is empty');
+      }
+
+      this.logger.log(`Verifying Legacy Apple receipt. Length: ${sanitizedReceipt.length}`);
+      
+      const isProduction = this.configService.get<string>('ENVIRONMENT') === 'production';
+      let response = await this.callAppleVerify(sanitizedReceipt, sharedSecret, true); // Try Production
       
       if (response.status === 21007) { // Sandbox receipt sent to production
-        response = await this.callAppleVerify(receiptData, sharedSecret, false); // Try Sandbox
+        this.logger.log('Sandbox receipt detected, retrying with sandbox URL...');
+        response = await this.callAppleVerify(sanitizedReceipt, sharedSecret, false); // Try Sandbox
       }
 
       if (response.status === 0) {
-        // Find the latest receipt info if it's a subscription
+        this.logger.log('Apple legacy verification successful');
         const latestInfo = response.latest_receipt_info ? response.latest_receipt_info[0] : response.receipt.in_app[0];
         const expiryDate = latestInfo.expires_date_ms ? new Date(Number(latestInfo.expires_date_ms)) : null;
-        
-        return { success: true, expiryDate, data: response };
+        const bundleId = response.receipt?.bundle_id || null;
+        const productId = latestInfo.product_id || null;
+
+        return {
+          success: true,
+          expiryDate,
+          transactionId: latestInfo.transaction_id,
+          originalTransactionId: latestInfo.original_transaction_id,
+          bundleId,
+          productId,
+          data: response
+        };
       }
+      
+      this.logger.error(`Apple legacy verification failed with status: ${response.status}`);
       throw new BadRequestException(`Apple verification failed (Status ${response.status})`);
     } catch (error) {
-      this.logger.error('Apple verification error', error.message);
+      this.logger.error('Apple verification error', error.stack);
       throw new BadRequestException(`Apple verification failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * StoreKit 2 JWS Verification Logic
+   */
+  async verifyAppleJWS(signedTransaction: string) {
+    try {
+      const parts = signedTransaction.split('.');
+      if (parts.length !== 3) {
+        throw new BadRequestException('Invalid JWS token format');
+      }
+
+      // Decode header to extract x5c certificate chain
+      const header = JSON.parse(Buffer.from(parts[0], 'base64url').toString());
+      const x5c: string[] = header.x5c;
+      if (!x5c || x5c.length < 1) {
+        throw new BadRequestException('No x5c certificate chain found');
+      }
+
+      // Validate certificate chain against Apple Root CA
+      this.validateAppleCertificateChain(x5c);
+
+      // Build PEM from leaf certificate
+      const leafCertPem = `-----BEGIN CERTIFICATE-----\n${x5c[0]}\n-----END CERTIFICATE-----`;
+
+      // Import public key and verify signature
+      const publicKey = await importX509(leafCertPem, header.alg || 'ES256');
+
+      const { payload } = await jwtVerify(signedTransaction, publicKey, {
+        algorithms: ['ES256'],
+      });
+
+      const transaction = payload as unknown as AppleTransactionPayload;
+      this.logger.log(`StoreKit 2 Verification Successful: ${transaction.productId}`);
+
+      return {
+        success: true,
+        expiryDate: transaction.expiresDate ? new Date(transaction.expiresDate) : null,
+        transactionId: transaction.transactionId,
+        originalTransactionId: transaction.originalTransactionId,
+        productId: transaction.productId,
+        bundleId: transaction.bundleId,
+        data: transaction
+      };
+    } catch (error) {
+      this.logger.error('Apple StoreKit 2 verification error', error.stack);
+      throw new BadRequestException(`Apple JWS verification failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Validate x5c certificate chain leads to Apple Root CA G3
+   */
+  private validateAppleCertificateChain(x5c: string[]) {
+    try {
+      // The last cert in the chain should be signed by Apple Root CA
+      const rootCert = new crypto.X509Certificate(APPLE_ROOT_CA_G3_PEM);
+
+      // Build chain: leaf -> intermediate(s) -> root
+      const certs = x5c.map(
+        (c) => new crypto.X509Certificate(`-----BEGIN CERTIFICATE-----\n${c}\n-----END CERTIFICATE-----`),
+      );
+
+      // Verify each cert is signed by the next one in the chain
+      for (let i = 0; i < certs.length - 1; i++) {
+        if (!certs[i].checkIssued(certs[i + 1])) {
+          throw new BadRequestException(`Certificate chain broken at index ${i}`);
+        }
+      }
+
+      // Verify the last cert in x5c chain is issued by Apple Root CA
+      const lastCert = certs[certs.length - 1];
+      if (!lastCert.checkIssued(rootCert)) {
+        throw new BadRequestException('Certificate chain does not lead to Apple Root CA');
+      }
+
+      this.logger.log('Apple certificate chain validation successful');
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      this.logger.error('Certificate chain validation error', error.message);
+      throw new BadRequestException(`Apple certificate chain validation failed: ${error.message}`);
     }
   }
 
@@ -101,8 +250,65 @@ export class PurchaseVerificationService {
       ? 'https://buy.itunes.apple.com/verifyReceipt' 
       : 'https://sandbox.itunes.apple.com/verifyReceipt';
     
-    const { data } = await axios.post(url, { 'receipt-data': receiptData, password });
-    return data;
+    try {
+      const { data } = await axios.post(url, { 'receipt-data': receiptData, password });
+      return data;
+    } catch (error) {
+      this.logger.error(`Error calling Apple verify API (${url})`, error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Verify and decode Apple App Store Server Notification V2 (signedPayload)
+   */
+  async verifyAppleNotificationV2(signedPayload: string): Promise<{
+    notificationType: string;
+    subtype?: string;
+    transactionInfo?: AppleTransactionPayload;
+  }> {
+    try {
+      const parts = signedPayload.split('.');
+      if (parts.length !== 3) {
+        throw new BadRequestException('Invalid notification JWS format');
+      }
+
+      const header = JSON.parse(Buffer.from(parts[0], 'base64url').toString());
+      const x5c: string[] = header.x5c;
+      if (!x5c || x5c.length < 1) {
+        throw new BadRequestException('No x5c certificate chain in notification');
+      }
+
+      // Validate certificate chain
+      this.validateAppleCertificateChain(x5c);
+
+      // Verify signature
+      const leafCertPem = `-----BEGIN CERTIFICATE-----\n${x5c[0]}\n-----END CERTIFICATE-----`;
+      const publicKey = await importX509(leafCertPem, header.alg || 'ES256');
+      const { payload } = await jwtVerify(signedPayload, publicKey, {
+        algorithms: ['ES256'],
+      });
+
+      const notificationPayload = payload as any;
+      this.logger.log(`Apple Notification V2 verified: ${notificationPayload.notificationType}`);
+
+      // Decode the nested signedTransactionInfo if present
+      let transactionInfo: AppleTransactionPayload | undefined;
+      const signedTransactionInfo = notificationPayload.data?.signedTransactionInfo;
+      if (signedTransactionInfo) {
+        const txResult = await this.verifyAppleJWS(signedTransactionInfo);
+        transactionInfo = txResult.data as AppleTransactionPayload;
+      }
+
+      return {
+        notificationType: notificationPayload.notificationType,
+        subtype: notificationPayload.subtype,
+        transactionInfo,
+      };
+    } catch (error) {
+      this.logger.error('Apple Notification V2 verification error', error.stack);
+      throw new BadRequestException(`Apple notification verification failed: ${error.message}`);
+    }
   }
 
   private getGoogleAuth() {

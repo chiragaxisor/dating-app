@@ -31,7 +31,7 @@ exports.UsersModule = UsersModule = __decorate([
             users_service_1.UsersService,
             purchase_verification_service_1.PurchaseVerificationService,
         ],
-        exports: [users_service_1.UsersService],
+        exports: [users_service_1.UsersService, purchase_verification_service_1.PurchaseVerificationService],
     })
 ], UsersModule);
 //# sourceMappingURL=users.module.js.map

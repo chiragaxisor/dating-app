@@ -4,6 +4,10 @@ export declare class WebhooksController {
     constructor(webhooksService: WebhooksService);
     appleWebhook(payload: any): Promise<{
         status: string;
+        message?: undefined;
+    } | {
+        status: string;
+        message: any;
     }>;
     googleWebhook(payload: any): Promise<{
         status: string;

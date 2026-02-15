@@ -10,6 +10,7 @@ const swagger_1 = require("@nestjs/swagger");
 const path_1 = require("path");
 const common_1 = require("@nestjs/common");
 const session = require("express-session");
+const express_1 = require("express");
 const socket_adapter_1 = require("./api/chat/socket.adapter");
 const jwt_1 = require("@nestjs/jwt");
 const access_tokens_service_1 = require("./api/access-tokens/access-tokens.service");
@@ -34,6 +35,8 @@ async function bootstrap() {
         })
         : await core_1.NestFactory.create(app_module_1.AppModule);
     const configService = app.get(config_1.ConfigService);
+    app.use((0, express_1.json)({ limit: '10mb' }));
+    app.use((0, express_1.urlencoded)({ limit: '10mb', extended: true }));
     app.use(['/api/documentation'], basicAuth({
         challenge: true,
         users: {
